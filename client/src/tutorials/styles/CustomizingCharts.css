@@ -1,0 +1,10 @@
+.customizing-section {
+    padding: 50px;
+    text-align: center;
+}
+
+#tradingview_chart {
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}

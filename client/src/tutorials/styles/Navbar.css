@@ -1,0 +1,117 @@
+/* Navbar Container */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #2c2c54;
+    padding: 15px 30px;
+    color: white;
+    font-family: "Gilroy", sans-serif;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Logo Styling */
+  .logo {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  /* Navigation Links Container */
+  .nav-links {
+    display: flex;
+    gap: 15px;
+  }
+  
+  /* Card Styling */
+  .nav-card {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+  }
+  
+  /* Hover Effect */
+  .nav-card:hover {
+    transform: scale(1.08);
+  }
+  
+  /* Different Colors for Each Section */
+  .card-intro {
+    background: #ff6b6b; /* Red */
+  }
+  
+  .card-chart {
+    background: #4ecdc4; /* Teal */
+  }
+  
+  .card-tools {
+    background: #f7b731; /* Yellow */
+  }
+  
+  .card-indicators {
+    background: #5f27cd; /* Purple */
+  }
+  
+  .card-customize {
+    background: #1dd1a1; /* Green */
+  }
+  
+  /* Text Styling */
+  .nav-card a {
+    text-decoration: none;
+    color: white;
+  }
+  
+
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align items to the left */
+    padding-left: 30px; /* Add left padding */
+    background: #2c2c54;
+    color: white;
+    font-family: "Gilroy", sans-serif;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px; /* Increase space between nav items */
+    margin-left: 30px; /* Adjust left margin for better alignment */
+}
+.main-content {
+  padding-top: 80px; /* Adjust this value based on navbar height */
+}
+
+
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensure it stays on top */
+}
+
+body {
+  padding-top: 80px; /* Push content below the navbar */
+}
+
+.main-content {
+  padding-top: 80px; /* Adjust this value based on navbar height */
+}
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensure it stays on top */
+}
+
+body {
+  padding-top: 5px; /* Push content below the navbar */
+}
+

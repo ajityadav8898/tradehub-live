@@ -1,0 +1,164 @@
+/* User Page Styling */
+.user-container {
+  text-align: center;
+  background-color: rgb(200, 210, 212);
+  /* background-color:#0adfaa; */
+  /* background: linear-gradient(to right, #6a11cb, #2575fc); */
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.user-heading {
+  /* border:1px solid black; */
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: rgb(24, 24, 24);
+  margin-bottom: 20px;
+}
+
+.ebook-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.user-ebook-card {
+  background: rgb(216, 228, 231);
+  border-radius: 30px;
+  padding: 14px;
+  width: 250px;
+  text-align: center;
+  /* border:1px solid black; */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.ebook-card:hover {
+  transform: scale(5.05);
+}
+
+.ebook-img {
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+
+  /* <!-- HTML !-->
+<button class="button-89" role="button">Button 89</button> */
+
+/* CSS */
+.view-btn {
+  --b: 3px;   /* border thickness */
+  --s: .45em; /* size of the corner */
+  --color: #373B44;
+  
+  padding: calc(.5em + var(--s)) calc(.9em + var(--s));
+  color: var(--color);
+  --_p: var(--s);
+  background:conic-gradient(from 90deg at var(--b) var(--b),#0000 90deg,var(--color) 0)var(--_p) var(--_p)/calc(100% - var(--b) - 2*var(--_p)) calc(100% - var(--b) - 2*var(--_p));
+  transition: .3s linear, color 0s, background-color 0s;
+  outline: var(--b) solid #0000;
+  outline-offset: .6em;
+  font-size: 16px;
+
+  border: 0;
+
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.view-btn:hover,
+.button-container:focus-visible{
+  --_p: 0px;
+  outline-color: var(--color);
+  outline-offset: .05em;
+}
+
+.view-btn:active {
+  background: var(--color);
+  color: #fff;
+}
+}
+
+/* .view-btn,
+.download-btn {
+  background-color: #03a541;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+} */
+
+.view-btn:hover {
+  background-color: #12e723;
+}
+
+.download-btn{
+  appearance: none;
+  background-color: #ffffffb4;
+  border-width: 0;
+  box-sizing: border-box;
+  box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.2);
+  color: #000000;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Clarkson,Helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1em;
+  margin: 0;
+  opacity: 1;
+  outline: 0;
+  padding: 1.5em 2.2em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  text-rendering: geometricprecision;
+  text-transform: uppercase;
+  transition: opacity 300ms cubic-bezier(.694, 0, 0.335, 1),background-color 100ms cubic-bezier(.694, 0, 0.335, 1),color 100ms cubic-bezier(.694, 0, 0.335, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.download-btn:before {
+  animation: opacityFallbackOut .5s step-end forwards;
+  backface-visibility: hidden;
+  background-color: #ebebebab;
+  clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: translateZ(0);
+  transition: clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1), -webkit-clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1);
+  width: 100%;
+}
+
+.download-btn:hover:before {
+  animation: opacityFallbackIn 0s step-start forwards;
+  clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
+}
+
+.download-btn:after {
+  background-color: #f4f809;
+}
+
+.download-btn span {
+  z-index: 1;
+  position: relative;
+}

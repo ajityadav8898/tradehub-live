@@ -1,0 +1,272 @@
+/* HomeSections.css */
+
+/* Navbar Solid State for Non-Home Pages */
+#nav.solid-nav {
+    background-color: #000;
+    height: 80px;
+    /* Fixed height for better control */
+    top: 0;
+    border-bottom: 1px solid #1a1a1a;
+    transition: background-color 0.3s ease, height 0.3s ease;
+}
+
+/* General Section Styling */
+.section-container {
+    padding: 4rem 2rem;
+    background-color: #000;
+    /* Match main background */
+    color: #fff;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    /* Ensure it sits above background elements if any */
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- Key Features Section --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(10, 223, 170, 0.2);
+    /* Theme Green glow */
+    border-color: rgba(10, 223, 170, 0.5);
+    /* Theme Green border */
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: #0adfaa;
+    /* TradeHub Theme Green */
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* --- FAQ Section --- */
+.faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.faq-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-question {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.faq-question:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background: rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 200px;
+    /* Adjust as needed */
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faq-item.active {
+    border-color: #0adfaa;
+    /* Theme Green active border */
+}
+
+.faq-toggle {
+    font-size: 1.5rem;
+    color: #0adfaa;
+    /* Theme Green toggle */
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-toggle {
+    transform: rotate(45deg);
+}
+
+/* --- Founder Section --- */
+.founders-grid {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.founder-card {
+    background: #0a0a0a;
+    /* Darker background */
+    border-radius: 20px;
+    padding: 2rem;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(10, 223, 170, 0.3);
+    /* Theme Green border */
+}
+
+.founder-image-container {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    /* Circular image */
+    overflow: hidden;
+    border: 3px solid #0adfaa;
+    /* Theme Green border */
+    background-color: #ccc;
+    /* Placeholder */
+}
+
+.founder-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.founder-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.founder-role {
+    font-size: 0.9rem;
+    color: #0adfaa;
+    /* Theme Green role text */
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.founder-bio {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.founder-socials {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    background: #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-icon.linkedin:hover {
+    background: #0077b5;
+    transform: translateY(-3px);
+}
+
+.social-icon.instagram:hover {
+    background: #E1306C;
+    transform: translateY(-3px);
+}
+
+.social-icon.twitter:hover {
+    background: #000;
+    border-color: #fff;
+    transform: translateY(-3px);
+}
+
+.social-icon.facebook:hover {
+    background: #1877f2;
+    transform: translateY(-3px);
+}
+
+
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        /* Stack cards on mobile */
+    }
+
+    .founders-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .founder-card {
+        width: 100%;
+        max-width: 350px;
+    }
+
+    .section-container {
+        padding: 3rem 1.5rem;
+    }
+}

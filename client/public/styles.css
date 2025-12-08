@@ -1,0 +1,688 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'montserrat';
+    color: azure;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    /* perspective: 800px; */
+}
+
+::selection {
+    background-color: #ecececab;
+    color: #0adfaa;
+}
+
+body::-webkit-scrollbar {
+    display: block;
+    width: 8px;
+    background: linear-gradient(#1a726e, #0adfaa);
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #fff;
+    border-radius: 50px;
+    transition: background-color 0.5s ease;
+}
+
+#cursor {
+    height: 20px;
+    width: 20px;
+    background-color: #0adfaa;
+    /* Theme Green */
+    border-radius: 50%;
+    position: fixed;
+    z-index: 99;
+}
+
+#cursor-blur {
+    height: 350px;
+    width: 350px;
+    background-color: rgba(10, 223, 170, 0.4);
+    /* Theme Green with opacity */
+    border-radius: 50%;
+    position: fixed;
+    filter: blur(40px);
+    z-index: 9;
+}
+
+#nav {
+    height: 20vh;
+    width: 100%;
+    /* background-color:red; */
+    top: 0;
+    /* Ensures it sticks to the very top */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Changed to space-between for logo and hamburger */
+    padding: 0 150px;
+    gap: 50px;
+    position: fixed;
+    z-index: 99;
+}
+
+#nav h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #0adfaa;
+    /* Theme Green */
+}
+
+/* Desktop Menu Styles */
+.desktop-menu {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.desktop-auth {
+    display: block;
+}
+
+#nav a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#nav a:hover {
+    color: #0adfaa;
+    /* Theme Green */
+}
+
+/* Hamburger Icon Styles */
+.hamburger-icon {
+    display: none;
+    /* Hidden on desktop */
+    font-size: 2rem;
+    cursor: pointer;
+    color: #0adfaa;
+    /* Theme Green */
+    z-index: 1001;
+    /* Above mobile menu */
+}
+
+/* Mobile Menu Styles */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    /* Hidden by default */
+    width: 70%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+    border-left: 1px solid #0adfaa;
+    /* Theme Green */
+}
+
+.mobile-menu.open {
+    right: 0;
+}
+
+.mobile-menu a {
+    font-size: 1.5rem;
+    color: white;
+    text-decoration: none;
+}
+
+.mobile-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 80%;
+}
+
+#login {
+    color: black;
+    background-color: #0adfaa;
+    /* Theme Green */
+    padding: 7px 15px;
+    border-radius: 22px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#loginicon {
+    color: black;
+}
+
+#signup {
+    color: black;
+    background-color: #0adfaa;
+    /* Theme Green */
+    padding: 7px 15px;
+    border-radius: 22px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#signicon {
+    color: black;
+}
+
+#background-image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    position: fixed;
+    z-index: 0;
+}
+
+/* FIX 1: Ensure #main has stacking context */
+#main {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.37);
+    z-index: 10;
+    /* CRITICAL: Must be above the video and have a stacking context */
+}
+
+#page1 {
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    z-index: 10;
+}
+
+#page1 h2 {
+    font-size: 60px;
+    font-weight: 800;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    position: relative;
+}
+
+#page1 p {
+    font-size: 20px;
+    font-weight: 500;
+    width: 40%;
+}
+
+#page1 h2::before {
+    content: "Options / Futures / Equity ";
+    position: absolute;
+    color: black;
+    top: -4px;
+    left: -4px;
+    -webkit-text-stroke: 1px #0adfaa;
+    /* Theme Green */
+    z-index: -1;
+}
+
+#page2 {
+    min-height: 100vh;
+    width: 100%;
+    z-index: 10;
+    position: relative;
+    /* Ensure #page2 respects stacking context */
+}
+
+#scroller {
+    /* background-color:red; */
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    z-index: 10;
+}
+
+#scroller::-webkit-scrollbar {
+    display: none;
+}
+
+#scroller-in {
+    display: inline-block;
+    white-space: nowrap;
+    animation-name: scroll;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+#scroller h4 {
+    display: inline-block;
+    font-size: 120px;
+    font-weight: 700;
+    font-family: gilroy;
+    margin-right: 20px;
+    color: transparent;
+    -webkit-text-stroke: 2px #0adfaa;
+    /* Theme Green */
+    transition: all linear 0.4s;
+}
+
+#scroller h4:hover {
+    color: #0adfaa;
+    /* Theme Green */
+}
+
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+#about-us {
+    height: 40vh;
+    width: 100%;
+    /* color:rgb(40, 214, 156); */
+    /* background-color:red; */
+    margin-top: 100px;
+    display: flex;
+    padding: 0 50px;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    justify-content: space-around;
+}
+
+#about-us img {
+    height: 220px;
+    width: 220px;
+    border-radius: 30px;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+#about-us-in {
+    width: 50%;
+    text-align: center;
+}
+
+#about-us-in h3 {
+    text-transform: uppercase;
+    font-size: 50px;
+    font-weight: 800px;
+    margin-bottom: 30px;
+    color: #0adfaa;
+    /* Theme Green */
+}
+
+#about-us-in p {
+    font-size: 20px;
+    line-height: 28px;
+}
+
+/* FIX 2: Correct Card Wrapping and Height */
+.cards-container {
+    /* height was 60vh, changed to min-height/auto for wrapping */
+    min-height: 60vh;
+    height: auto;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* CRITICAL: Allows cards to drop to new row */
+    gap: 70px;
+    position: relative;
+    z-index: 10;
+    /* Keep cards above the background layers */
+}
+
+.cards {
+    height: 80%;
+    width: 25%;
+    /* background-color:blue; */
+    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
+    transition: all ease 0.6s;
+}
+
+/* FIX 3: Corrected Asset Paths */
+#card1 {
+    background-image: url(/assets/BankNifty1.avif);
+}
+
+#card2 {
+    background-image: url(/assets/Nifty1.avif);
+}
+
+#card3 {
+    background-image: url(/assets/Sensex1.avif);
+}
+
+#card4 {
+    background-image: url(/assets/MidCapNifty1.avif);
+}
+
+#card5 {
+    background-image: url(/assets/FinNifty1.avif);
+}
+
+#card6 {
+    background-image: url(/assets/Bankex1.avif);
+}
+
+.overlay {
+    height: 100%;
+    width: 100%;
+    background-color: #0adfaa;
+    /* Theme Green */
+    border-radius: 20px;
+    padding: 36px;
+    padding-top: 80px;
+    opacity: 0;
+    transition: all ease 0.6s;
+}
+
+.overlay h4 {
+    color: #000;
+    font-size: 40px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+.overlay p {
+    color: #000;
+    font-size: 20px;
+    font-weight: 100;
+}
+
+.cards:hover .overlay {
+    opacity: 1;
+}
+
+.cards:hover {
+    transform: rotate3d(-1, 1, 0, 20deg);
+}
+
+#page3 {
+    height: 100vh;
+    width: 100%;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+}
+
+/* FIX 4: Improved Footer UI */
+.footer {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 60px 0 20px;
+    position: relative;
+    z-index: 20;
+    border-top: 1px solid #1a1a1a;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.footer h3 {
+    margin-bottom: 10px;
+    color: #0adfaa;
+    /* Theme Green */
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer p {
+    color: #ccc;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.footer ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer ul li a {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s ease;
+    font-size: 1rem;
+}
+
+.footer ul li a:hover {
+    color: #0adfaa;
+    /* Theme Green */
+    padding-left: 5px;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ccc;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #1a1a1a;
+    margin-top: 40px;
+}
+
+.footer-bottom p {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* html {
+    scroll-behavior: smooth;
+} */
+
+
+/* Styling for the Profile Dropdown */
+.profile-dropdown-container {
+    position: relative;
+    z-index: 1000;
+    /* Must be high to ensure visibility */
+    margin-left: 20px;
+}
+
+.profile-icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    /* Centers the icon */
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 40px;
+    /* Position below the icon */
+    right: 0;
+    width: 180px;
+    background-color: #000;
+    /* Dark background */
+    border: 1px solid #0adfaa;
+    /* Theme Green border */
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(10, 223, 170, 0.2);
+    overflow: hidden;
+    padding: 10px;
+    text-align: left;
+    transition: opacity 0.2s;
+}
+
+.dropdown-menu.hidden {
+    display: none;
+}
+
+.username-display {
+    padding: 5px 0;
+    margin-bottom: 5px;
+    color: #fff;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 14px;
+    text-align: center;
+}
+
+.username-display strong {
+    color: #0adfaa;
+    /* Theme Green text */
+    font-size: 16px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #0a0a0a;
+    color: #0adfaa;
+}
+
+/* --- RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    #nav {
+        height: 10vh;
+        padding: 0 20px;
+        justify-content: space-between;
+        background-color: #000;
+        /* Ensure background is black */
+    }
+
+    #nav h1 {
+        font-size: 28px;
+    }
+
+    .desktop-menu,
+    .desktop-auth {
+        display: none;
+        /* Hide desktop menu on mobile */
+    }
+
+    .hamburger-icon {
+        display: block;
+        /* Show hamburger on mobile */
+    }
+
+    #page1 {
+        height: auto;
+        min-height: 80vh;
+        padding-top: 100px;
+    }
+
+    #page1 h2 {
+        font-size: 32px;
+        margin-top: 50px;
+    }
+
+    #page1 p {
+        width: 90%;
+        font-size: 16px;
+    }
+
+    #scroller h4 {
+        font-size: 60px;
+        -webkit-text-stroke: 1px #0adfaa;
+        /* Theme Green */
+    }
+
+    #about-us {
+        height: auto;
+        flex-direction: column;
+        padding: 40px 20px;
+        margin-top: 50px;
+        gap: 30px;
+    }
+
+    #about-us img {
+        height: 150px;
+        width: 150px;
+    }
+
+    #about-us-in {
+        width: 100%;
+    }
+
+    #about-us-in h3 {
+        font-size: 32px;
+    }
+
+    #about-us-in p {
+        font-size: 16px;
+    }
+
+    .cards-container {
+        gap: 30px;
+        margin-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .cards {
+        width: 90%;
+        height: 250px;
+    }
+
+    .overlay h4 {
+        font-size: 28px;
+    }
+
+    .overlay p {
+        font-size: 16px;
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 40px;
+        padding: 0 20px;
+    }
+}

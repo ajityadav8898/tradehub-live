@@ -1,0 +1,41 @@
+/* FIX: Set a dark color for text inside the content area */
+.content {
+    /* ... existing styles ... */
+    color: #333; /* For general text */
+}
+
+/* Ensure specific elements inside the cards are also dark */
+.content-card p, 
+.content-card ul li,
+.content-card h1,
+.content-card h2 {
+    color: #333 !important; /* Forces the text to be dark, ensuring contrast */
+}
+
+/* Update this in the CSS file for your tutorial section */
+
+/* Target the main container to ensure screen-width control */
+.main-content {
+    /* Retain max-width for centering, but ensure margin has room */
+    max-width: 80vw; /* CRITICAL FIX: Sets max width to 80% of viewport width */
+    margin: 0 auto; /* Keeps content centered */
+    padding: 20px 0; /* Add padding top/bottom */
+}
+
+/* Ensure the Section (card) fills the remaining space */
+.content-card {
+    /* ... existing background, box-shadow rules ... */
+    width: 100%; /* Ensure the card section uses the full available width of the main content (80vw) */
+    box-sizing: border-box;
+}
+
+
+/* Update this in TradingViewGuide.css */
+
+/* Target the main heading inside the content cards */
+.content-card h2 {
+    font-size: 24px;
+    margin-bottom: 20px; /* FIX: Adds line space (margin) below the title */
+    padding-bottom: 10px; /* Adds a bit of padding for visual separation */
+    border-bottom: 1px solid #eee; /* OPTIONAL: Adds a subtle divider line */
+}
