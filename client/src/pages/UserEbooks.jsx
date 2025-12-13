@@ -5,6 +5,7 @@ import "../styles/Ebooks.css";
 
 const UserEbooks = () => {
   const [ebooks, setEbooks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -26,6 +27,10 @@ const UserEbooks = () => {
         setIsLoading(false);
       });
   }, [API_BASE_URL]);
+
+  const filteredEbooks = ebooks.filter(ebook =>
+    ebook.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleView = (pdfLink) => {
     console.log("Attempting to View link:", pdfLink);
@@ -84,8 +89,20 @@ const UserEbooks = () => {
       <Navbar />
       <div className="user-container">
         <h1 className="user-heading">Trading EBooks Library</h1>
+
+        {/* Search Bar */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search ebooks..."
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         <div className="ebook-list">
-          {ebooks.map((ebook) => (
+          {filteredEbooks.map((ebook) => (
             <div key={ebook._id} className="user-ebook-card">
               <img src={ebook.thumbnail} alt={ebook.title} className="ebook-img" />
               <h2>{ebook.title}</h2>

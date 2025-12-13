@@ -1,6 +1,8 @@
 :root {
-    --primary-color: #4EA685;
-    --secondary-color: #57B894;
+    --primary-color: #0adfaa;
+    /* Neon Green */
+    --secondary-color: #08c295;
+    /* Darker Green */
     --black: #000000;
     --white: #ffffff;
     --gray: #efefef;
@@ -9,6 +11,9 @@
     --google-color: #DB4437;
     --twitter-color: #1DA1F2;
     --insta-color: #E1306C;
+    --card-bg: rgba(25, 25, 25, 0.9);
+    /* Dark Glass */
+    --input-bg: rgba(0, 0, 0, 0.5);
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap');
@@ -24,12 +29,14 @@ html,
 body {
     height: 100vh;
     overflow: hidden;
+    background-color: var(--black);
 }
 
 .container {
     position: relative;
     min-height: 100vh;
     overflow: hidden;
+    background-color: var(--black);
 }
 
 .row {
@@ -55,14 +62,16 @@ body {
 }
 
 .form {
-    padding: 1rem;
-    background-color: var(--white);
+    padding: 2rem;
+    background-color: var(--card-bg);
     border-radius: 1.5rem;
     width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    box-shadow: 0 0 20px rgba(10, 223, 170, 0.1);
     transform: scale(0);
     transition: .5s ease-in-out;
     transition-delay: 1s;
+    border: 1px solid rgba(10, 223, 170, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .input-group {
@@ -76,43 +85,64 @@ body {
     top: 50%;
     left: 1rem;
     transform: translateY(-50%);
-    font-size: 1.4rem;
-    color: var(--gray-2);
+    font-size: 1.2rem;
+    color: var(--primary-color);
 }
 
 .input-group input {
     width: 100%;
     padding: 1rem 3rem;
     font-size: 1rem;
-    background-color: var(--gray);
+    background-color: var(--input-bg);
     border-radius: .5rem;
-    border: 0.125rem solid var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     outline: none;
+    color: var(--white);
+    transition: all 0.3s ease;
 }
 
 .input-group input:focus {
-    border: 0.125rem solid var(--primary-color);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 10px rgba(10, 223, 170, 0.2);
 }
 
 .form button {
     cursor: pointer;
     width: 100%;
-    padding: .6rem 0;
+    padding: .8rem 0;
     border-radius: .5rem;
     border: none;
     background-color: var(--primary-color);
-    color: var(--white);
+    color: var(--black);
     font-size: 1.2rem;
+    font-weight: 600;
     outline: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1rem;
+}
+
+.form button:hover {
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 15px rgba(10, 223, 170, 0.4);
+    transform: translateY(-2px);
 }
 
 .form p {
     margin: 1rem 0;
-    font-size: .7rem;
+    font-size: .85rem;
+    color: var(--gray);
 }
 
 .form a {
-    pointer-events: auto; /* Ensure links are clickable */
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.form a:hover {
+    text-decoration: underline;
 }
 
 .flex-col {
@@ -124,13 +154,12 @@ body {
     padding: 1rem;
     border-radius: 1.5rem;
     width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     transform: scale(0);
     transition: .5s ease-in-out;
     transition-delay: 1.2s;
 }
 
-.social-list > div {
+.social-list>div {
     color: var(--white);
     margin: 0 .5rem;
     padding: .7rem;
@@ -141,57 +170,43 @@ body {
     transition: .5s ease-in-out;
 }
 
-.social-list > div:nth-child(1) {
+.social-list>div:nth-child(1) {
     transition-delay: 1.4s;
 }
 
-.social-list > div:nth-child(2) {
+.social-list>div:nth-child(2) {
     transition-delay: 1.6s;
 }
 
-.social-list > div:nth-child(3) {
+.social-list>div:nth-child(3) {
     transition-delay: 1.8s;
 }
 
-.social-list > div:nth-child(4) {
+.social-list>div:nth-child(4) {
     transition-delay: 2s;
 }
 
-.social-list > div > i {
+.social-list>div>i {
     font-size: 1.5rem;
     transition: .4s ease-in-out;
 }
 
-.social-list > div:hover i {
+.social-list>div:hover i {
     transform: scale(1.5);
-}
-
-.facebook-bg {
-    background-color: var(--facebook-color);
-}
-
-.google-bg {
-    background-color: var(--google-color);
-}
-
-.twitter-bg {
-    background-color: var(--twitter-color);
-}
-
-.insta-bg {
-    background-color: var(--insta-color);
 }
 
 .pointer {
     cursor: pointer;
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
 .container.sign-in .form.sign-in,
 .container.sign-in .social-list.sign-in,
-.container.sign-in .social-list.sign-in > div,
+.container.sign-in .social-list.sign-in>div,
 .container.sign-up .form.sign-up,
 .container.sign-up .social-list.sign-up,
-.container.sign-up .social-list.sign-up > div {
+.container.sign-up .social-list.sign-up>div {
     transform: scale(1);
 }
 
@@ -214,12 +229,19 @@ body {
     font-weight: 800;
     margin: 2rem 0;
     transition: 1s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.text h2 span.highlight {
+    color: var(--primary-color);
 }
 
 .text p {
     font-weight: 600;
     transition: 1s ease-in-out;
     transition-delay: .2s;
+    font-size: 1.1rem;
 }
 
 .img img {
@@ -249,7 +271,7 @@ body {
     transform: translateX(0);
 }
 
-/* BACKGROUND */
+/* BACKGROUND ANIMATION */
 
 .container::before {
     content: "";
@@ -259,10 +281,10 @@ body {
     height: 100vh;
     width: 300vw;
     transform: translate(35%, 0);
-    background-image: linear-gradient(-45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background-image: linear-gradient(-45deg, var(--primary-color) 0%, #000 100%);
     transition: 1s ease-in-out;
     z-index: 6;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 30px;
     border-bottom-right-radius: max(50vw, 50vh);
     border-top-left-radius: max(50vw, 50vh);
 }
@@ -279,33 +301,48 @@ body {
 
 /* Forgot Password Modal Styling */
 #forgotPasswordModal {
-    z-index: 1001; /* Increased to ensure it appears above other elements */
-    transition: opacity 0.3s ease;
-    /* Temporary override for testing */
-    display: block !important; /* Remove this after testing */
+    z-index: 2000;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
 }
 
 #forgotPasswordModal .form {
     transform: scale(1) !important;
     animation: none;
-    background-color: var(--white);
-    padding: 1.5rem;
-    border-radius: 1.5rem;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    max-width: 400px;
+    background-color: #1a1a1a;
+    border: 1px solid var(--primary-color);
 }
 
 #forgotPasswordModal .input-group input {
-    background-color: var(--gray);
-    border: 0.125rem solid var(--white);
+    background-color: #333;
+    border: 1px solid #555;
+    color: white;
 }
 
 #forgotPasswordModal .input-group input:focus {
-    border: 0.125rem solid var(--primary-color);
+    border-color: var(--primary-color);
 }
+
+#forgotPasswordModal h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+#forgotPasswordModal a {
+    color: var(--gray);
+}
+
+#forgotPasswordModal a:hover {
+    color: var(--primary-color);
+}
+
 
 /* RESPONSIVE */
 
 @media only screen and (max-width: 425px) {
+
     .container::before,
     .container.sign-in::before,
     .container.sign-up::before {
@@ -335,7 +372,7 @@ body {
         width: 100%;
         position: absolute;
         padding: 2rem;
-        background-color: var(--white);
+        background-color: rgba(0, 0, 0, 0.8);
         border-top-left-radius: 2rem;
         border-top-right-radius: 2rem;
         transform: translateY(100%);
@@ -345,6 +382,7 @@ body {
     .row {
         align-items: flex-end;
         justify-content: flex-end;
+        background-image: linear-gradient(-45deg, var(--primary-color) 0%, #000 100%);
     }
 
     .form,
@@ -352,6 +390,8 @@ body {
         box-shadow: none;
         margin: 0;
         padding: 0;
+        background: transparent;
+        border: none;
     }
 
     .text {
@@ -371,27 +411,4 @@ body {
         width: 90%;
         margin: 0 auto;
     }
-}
-
-
-/* Add these rules to auth-style.css */
-
-/* Target all text elements within the white form wrapper */
-.form {
-    /* Existing background: white; rule is correct */
-    color: #000000; /* CRITICAL: Force the text color to black/dark */
-}
-
-/* Ensure paragraph links and text inside the form also inherit the dark color */
-.form p,
-.form span,
-.form a,
-.form b {
-    color: #000000 !important; /* Use !important if necessary to override global styles */
-}
-
-/* Ensure input fields have black text */
-.input-group input {
-    /* existing styles... */
-    color: #000000; /* Force input text to be black */
 }

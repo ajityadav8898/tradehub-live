@@ -19,32 +19,32 @@ if (!process.env.MONGO_URI) {
 // ------------------------------------------------
 
 // --- Import Unified Routers ---
-const authRoutes = require("./routes/auth"); 
+const authRoutes = require("./routes/auth");
 const ebooksRoutes = require("./routes/ebooks");
 
 const app = express();
-const server = http.createServer(app); 
+const server = http.createServer(app);
 
 // --- 1. DATABASE CONNECTION (FINAL STABILITY FIX APPLIED) ---
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {
             // FIX: Options for connection stability and resilience
-            serverSelectionTimeoutMS: 10000, 
-            socketTimeoutMS: 45000,         
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
         });
         console.log("✅ MongoDB Connected!");
     } catch (err) {
         console.error("❌ MongoDB Connection Failed:", err.message);
         // Do not exit, try to reconnect
-        setTimeout(connectDB, 5000); 
+        setTimeout(connectDB, 5000);
     }
 };
 connectDB();
 
 // --- 2. CORS Configuration ---
 const corsOptions = {
-    origin: process.env.CLIENT_URL || "http://localhost:3000", 
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
 };
@@ -52,18 +52,18 @@ app.use(cors(corsOptions));
 
 // --- 3. Middleware (CRITICAL FIX FOR DATA PARSING AND AUTH STABILITY) ---
 // FIX 1: Body parser for application/json requests
-app.use(express.json()); 
+app.use(express.json());
 // FIX 2: Body parser for application/x-www-form-urlencoded data (Required for Axios/Frontend reliability)
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 // The combination ensures data is always parsed correctly, eliminating 'undefined' errors.
 
 // ✅ Serve Static Files
-const staticPath = path.join(__dirname, '..', 'client', 'public');
+const staticPath = path.join(__dirname, '..', 'client', 'build');
 app.use(express.static(staticPath));
 
 // --- 4. API ROUTING ---
 app.use("/api/auth", authRoutes);
-app.use("/api/ebooks", ebooksRoutes); 
+app.use("/api/ebooks", ebooksRoutes);
 
 // --- 5. CLIENT-SIDE ROUTING (Final Catch-all) ---
 app.use((req, res, next) => {
@@ -81,7 +81,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
     console.log(`\n💬 A user connected for chat: ${socket.id}`);
-    
+
     socket.on("disconnect", () => {
         console.log("User disconnected from chat");
     });

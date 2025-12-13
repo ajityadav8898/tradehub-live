@@ -1,3 +1,4 @@
+import ParticlesComponent from '../components/ParticlesComponent'; // Import Particles
 import React, { useEffect, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
@@ -78,7 +79,6 @@ const HomePage = () => {
         };
     }, [isMounted]);
 
-
     // --- JSX Render ---
     return (
         <React.Fragment>
@@ -88,8 +88,8 @@ const HomePage = () => {
             <div id="cursor"></div>
             <div id="cursor-blur"></div>
 
-            {/* CORRECT FIX: Background Image instead of Video */}
-            <img src="/assets/hero_background.jpg" alt="Trading Background" id="background-image" />
+            {/* PARTICLES BACKGROUND */}
+            <ParticlesComponent id="particles" />
 
             {/* CORRECT #main container for all scrollable content */}
             <div id="main">

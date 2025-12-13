@@ -26,7 +26,7 @@
     font-size: 2.5rem;
     margin-bottom: 3rem;
     font-weight: 700;
-    color: #fff;
+    color: #0adfaa;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -269,4 +269,14 @@
     .section-container {
         padding: 3rem 1.5rem;
     }
+}
+
+/* Particles Background */
+#particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }

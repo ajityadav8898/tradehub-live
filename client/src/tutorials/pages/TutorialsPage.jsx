@@ -1,10 +1,10 @@
 import React from "react";
 import { Element } from "react-scroll";
-import Navbar from '../components/Navbar'; 
+import Navbar from '../components/Navbar';
 import TradingViewWidget from '../components/TradingViewWidget'; // CORRECTED PATH
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import '../styles/TradingViewGuide.css'; 
+import '../styles/TradingViewGuide.css';
 
 // Styled Components (Retained from your code for structure)
 const PageContainer = styled.div`
@@ -59,6 +59,17 @@ const Section = styled(motion.div)`
         color: #444; 
         line-height: 1.6; /* Improves vertical readability */
     }
+
+    & a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    & a:hover {
+        text-decoration: underline;
+    }
 `;
 
 // ... (rest of the TutorialsPage component code) ...
@@ -67,9 +78,9 @@ const Section = styled(motion.div)`
 const TutorialsPage = () => {
     return (
         <PageContainer>
-            <Navbar /> 
+            <Navbar />
             <Content>
-                
+
                 {/* 1. Introduction Section (Full Content Restored) */}
                 <Element name="intro">
                     <Section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
@@ -87,7 +98,7 @@ const TutorialsPage = () => {
                     <Section initial={{ x: -100 }} animate={{ x: 0 }} transition={{ duration: 1 }}>
                         <h2>📊 Chart Basics</h2>
                         <ul>
-                            <li>Candlestick Charts – Show price movement in a specific time frame.</li>
+                            <li>Candlestick Charts – Show price movement in a specific time frame. <a href="https://youtu.be/EVlQgmirnCg?si=hpJcDv6EBNFwpGZQ" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
                             <li>Line Charts – Connect closing prices for a smooth trend view.</li>
                             <li>Bar Charts – Display the opening, closing, high, and low price for each time period.</li>
                             <li>Volume Indicators – Show the number of trades happening.</li>
@@ -101,6 +112,7 @@ const TutorialsPage = () => {
                     <Section initial={{ x: 100 }} animate={{ x: 0 }} transition={{ duration: 1 }}>
                         <h2>✏ Drawing Tools</h2>
                         <ul>
+                            <li>Support and Resistance – Key levels where price reverses. <a href="https://youtu.be/r2LzjTUs3lo?si=RgCCl5tUom8x39sm" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
                             <li>Trend Lines – Draw lines to identify market direction.</li>
                             <li>Fibonacci Retracements – Predict price reversals using percentage levels.</li>
                             <li>Gann Fans – Help measure time and price movements.</li>
@@ -115,8 +127,9 @@ const TutorialsPage = () => {
                     <Section initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 1 }}>
                         <h2>📈 Indicators & Scripts</h2>
                         <ul>
-                            <li>RSI – Shows if a stock is overbought (too high) or oversold (too low).</li>
-                            <li>MACD – Helps spot trend changes.</li>
+                            <li>RSI – Shows if a stock is overbought (too high) or oversold (too low). <a href="https://youtu.be/WZkXcfr4r3c?si=3_xxKCxIhUCYCyWf" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                            <li>MACD – Helps spot trend changes. <a href="https://youtu.be/btp0qIIa0Qw?si=K-CvMo5VVki21qAz" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                            <li>Moving Averages – Smooth out price data to identify trends. <a href="https://youtu.be/7ASY4PtZUTQ?si=FCTKnxLq-bSx1TB7" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
                             <li>Bollinger Bands – Show whether a stock is too volatile or stable.</li>
                             <li>📝 Key Point: Indicators help traders make smarter decisions!</li>
                         </ul>
@@ -128,9 +141,59 @@ const TutorialsPage = () => {
                     <Section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}>
                         <h2>🎨 Customizing Charts</h2>
                         <p>Modify chart colors, grid styles, and more to match your trading strategy.</p>
-                        
+
                         {/* ✅ ONLY ONE CHART: Render TradingView Widget here. */}
                         <TradingViewWidget />
+                    </Section>
+                </Element>
+
+                {/* 6. Mutual Funds */}
+                <Element name="mutualFunds">
+                    <Section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
+                        <h2>💰 Mutual Funds</h2>
+                        <ul>
+                            <li>A pool of money collected from many investors to invest in securities like stocks, bonds, money market instruments, and other assets. <a href="https://www.youtube.com/watch?v=0b7_lC_Hw6I" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                        </ul>
+                    </Section>
+                </Element>
+
+                {/* 7. SIPs (Systematic Investment Plans) */}
+                <Element name="sips">
+                    <Section initial={{ x: -100 }} animate={{ x: 0 }} transition={{ duration: 1 }}>
+                        <h2>📅 SIPs (Systematic Investment Plans)</h2>
+                        <ul>
+                            <li>A method of investing a fixed sum specifically in mutual funds at regular intervals. <a href="https://www.youtube.com/watch?v=1F2bIu91PJs" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                        </ul>
+                    </Section>
+                </Element>
+
+                {/* 8. IPOs (Initial Public Offerings) */}
+                <Element name="ipos">
+                    <Section initial={{ x: 100 }} animate={{ x: 0 }} transition={{ duration: 1 }}>
+                        <h2>🚀 IPOs (Initial Public Offerings)</h2>
+                        <ul>
+                            <li>The process of offering shares of a private corporation to the public in a new stock issuance. <a href="https://www.youtube.com/watch?v=neP_5_B1X6o" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                        </ul>
+                    </Section>
+                </Element>
+
+                {/* 9. Forex Trading */}
+                <Element name="forex">
+                    <Section initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration: 1 }}>
+                        <h2>🌍 Forex Trading</h2>
+                        <ul>
+                            <li>Foreign exchange trading is the process of speculating on currency prices to potentially make a profit. <a href="https://www.youtube.com/watch?v=kYJ6c3aVqL8" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                        </ul>
+                    </Section>
+                </Element>
+
+                {/* 10. Bitcoin Trading */}
+                <Element name="bitcoin">
+                    <Section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}>
+                        <h2>₿ Bitcoin Trading</h2>
+                        <ul>
+                            <li>Buying and selling Bitcoin to make a profit from price fluctuations. <a href="https://www.youtube.com/watch?v=kYv9N8z_y3U" target="_blank" rel="noopener noreferrer">Watch Tutorial</a></li>
+                        </ul>
                     </Section>
                 </Element>
             </Content>

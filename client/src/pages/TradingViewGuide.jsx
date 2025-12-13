@@ -18,42 +18,115 @@ export default function TutorialsPage() {
       id: 2,
       title: "How to Read Candlestick Patterns",
       category: "Analysis",
-      url: "https://www.youtube.com/embed/C32l-vQf5K0",
+      url: "https://www.youtube.com/embed/EVlQgmirnCg",
       description: "Understand the language of the market through Japanese Candlesticks."
     },
     {
       id: 3,
       title: "Moving Averages Explained",
       category: "Indicators",
-      url: "https://www.youtube.com/embed/Us227C0f_1k",
+      url: "https://www.youtube.com/embed/7ASY4PtZUTQ",
       description: "Master one of the most popular trend-following indicators."
     },
     {
       id: 4,
       title: "RSI Strategy for Beginners",
       category: "Indicators",
-      url: "https://www.youtube.com/embed/B2y_M0k_1p8",
+      url: "https://www.youtube.com/embed/WZkXcfr4r3c",
       description: "How to use the Relative Strength Index to find entry and exit points."
     },
     {
       id: 5,
       title: "Support and Resistance Basics",
       category: "Analysis",
-      url: "https://www.youtube.com/embed/4M8o6qS7qZc",
+      url: "https://www.youtube.com/embed/r2LzjTUs3lo",
       description: "Identify key levels where price is likely to react."
     },
     {
       id: 6,
       title: "Introduction to MACD",
       category: "Indicators",
-      url: "https://www.youtube.com/embed/e5KA3jXN04M",
+      url: "https://www.youtube.com/embed/btp0qIIa0Qw",
       description: "Using the MACD indicator to identify momentum and trend reversals."
+    },
+    {
+      id: 7,
+      title: "Mutual Funds for Beginners",
+      category: "Investing",
+      url: "https://www.youtube.com/embed/6fQwVxqqpAg",
+      description: "A complete guide to understanding and investing in Mutual Funds."
+    },
+    {
+      id: 8,
+      title: "What Is SIP? (Systematic Investment Plan)",
+      category: "Investing",
+      url: "https://www.youtube.com/embed/rAqzpRZa78E",
+      description: "Learn how SIPs work and how they help build long-term wealth."
+    },
+    {
+      id: 9,
+      title: "What is an IPO?",
+      category: "Investing",
+      url: "https://www.youtube.com/embed/gWrR5qPEmWE",
+      description: "Understand the IPO process and why companies go public."
+    },
+    {
+      id: 10,
+      title: "Forex Trading for Beginners",
+      category: "Trading",
+      url: "https://www.youtube.com/embed/RunUl7eFx44",
+      description: "Start your journey into the world of Foreign Exchange trading."
+    },
+    {
+      id: 11,
+      title: "Crypto Trading for Beginners",
+      category: "Crypto",
+      url: "https://www.youtube.com/embed/hnS5sjqXXIc",
+      description: "A plain English guide to trading Bitcoin and profitable strategies."
     }
   ];
 
   const filteredVideos = videos.filter(video =>
     video.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const moreCourses = [
+    {
+      id: 1,
+      title: "Advanced Technical Analysis",
+      category: "Analysis",
+      image: "https://images.unsplash.com/photo-1611974765270-ca12586343bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      description: "Deep dive into chart patterns, multi-timeframe analysis, and advanced indicators."
+    },
+    {
+      id: 2,
+      title: "Crypto Trading 101",
+      category: "Crypto",
+      image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      description: "Master the basics of cryptocurrency trading, wallets, and blockchain technology."
+    },
+    {
+      id: 3,
+      title: "Forex Mastery Course",
+      category: "Forex",
+      image: "https://images.unsplash.com/photo-1526304640156-50364cc71565?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      description: "Learn to trade foreign currencies with confidence using proven strategies."
+    },
+    {
+      id: 4,
+      title: "Options Trading Strategies",
+      category: "Options",
+      image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      description: "Understand calls, puts, and complex option strategies for hedging and profit."
+    },
+    {
+      id: 5,
+      title: "Swing Trading Secrets",
+      category: "Strategy",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      description: "Capture gains in a stock within one to four days. Ideal for part-time traders."
+    }
+  ];
 
   return (
     <div className="tutorials-page">
@@ -119,6 +192,30 @@ export default function TutorialsPage() {
           <div className="featured-image">
             <img src="https://images.unsplash.com/photo-1611974765270-ca12586343bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Trading Course" />
           </div>
+        </div>
+      </div>
+
+      {/* More Courses Section */}
+      <div className="tutorial-section">
+        <h2 className="section-title">More Courses</h2>
+        <div className="video-grid">
+          {moreCourses.map((course) => (
+            <div key={course.id} className="video-card">
+              <div className="video-thumbnail">
+                <img
+                  src={course.image}
+                  alt={course.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              <div className="video-info">
+                <span className="video-category">{course.category}</span>
+                <h3>{course.title}</h3>
+                <p>{course.description}</p>
+                <button className="cta-btn" style={{ marginTop: '15px', fontSize: '0.8rem', padding: '8px 20px', cursor: 'pointer' }}>Enroll Now</button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
