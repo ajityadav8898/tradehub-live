@@ -1,0 +1,248 @@
+/* AdminChatbox.css - Messenger Light Theme */
+
+/* Responsive Container */
+.admin-chat-root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    /* Main dashboard background can stay dark, or match chat */
+    padding: 0;
+}
+
+/* Main Chat Window */
+.admin-chat-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+    .admin-chat-container {
+        max-width: 1000px;
+        height: 100%;
+        margin: 0 auto;
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Dark Mode Overrides */
+.admin-chat-container.dark {
+    background-color: #121212;
+    color: #e4e6eb;
+}
+
+.admin-chat-container.dark .admin-chat-header,
+.admin-chat-container.dark .admin-chat-input-area {
+    background-color: #242526;
+    border-color: #3e4042;
+    color: #e4e6eb;
+}
+
+.admin-chat-container.dark .user-details h3 {
+    color: #e4e6eb;
+}
+
+.admin-chat-container.dark .admin-chat-box {
+    background-color: #121212;
+}
+
+.admin-chat-container.dark .admin-chat-input-area input {
+    background-color: #3a3b3c;
+    color: #e4e6eb;
+}
+
+.admin-chat-container.dark .icon-btn {
+    color: #b0b3b8;
+}
+
+/* Header */
+.admin-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ff9800;
+    /* Distinct color for Guest User avatar */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.user-details h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #050505;
+    font-weight: 600;
+}
+
+.user-details .status {
+    font-size: 0.8rem;
+    color: #65676b;
+}
+
+/* Messages Area */
+.admin-chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #f0f2f5;
+}
+
+/* Message Bubbles */
+.message-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+}
+
+/* In Admin view: 
+   'user' class = Admin (Right)
+   'admin' class = Guest (Left)
+*/
+.message-wrapper.user {
+    justify-content: flex-end;
+}
+
+.message-wrapper.admin {
+    justify-content: flex-start;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Admin Bubble (Right) - Teal */
+.message.user {
+    background-color: #00bfa5;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.message.user p {
+    color: #ffffff;
+}
+
+/* Guest Bubble (Left) - White */
+.message.admin {
+    background-color: #ffffff;
+    color: #050505;
+    border-bottom-left-radius: 4px;
+}
+
+.message.admin p {
+    color: #050505;
+}
+
+/* Timestamp */
+.timestamp {
+    display: block;
+    text-align: right;
+    font-size: 0.65rem;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+.message.admin .timestamp {
+    color: #65676b;
+}
+
+.message.user .timestamp {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Input Area */
+.admin-chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #ffffff;
+    gap: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.admin-chat-input-area input {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background-color: #f0f2f5;
+    color: #050505;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.admin-chat-input-area input::placeholder {
+    color: #65676b;
+}
+
+.icon-btn,
+.send-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+}
+
+.icon-btn {
+    color: #65676b;
+}
+
+.icon-btn:hover {
+    background-color: #f2f2f2;
+    border-radius: 50%;
+}
+
+.send-btn {
+    color: #00bfa5;
+}
+
+.admin-emoji-picker {
+    position: absolute;
+    bottom: 70px;
+    left: 20px;
+    z-index: 20;
+}

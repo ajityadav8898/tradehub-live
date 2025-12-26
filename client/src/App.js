@@ -11,9 +11,12 @@ import TradingViewChart from './pages/TradingViewChart';
 // Import Ebooks Pages
 import AdminEbooks from "./pages/AdminEbooks.jsx";
 import UserEbooks from "./pages/UserEbooks.jsx";
+import AdminChatPage from "./pages/AdminChatPage";
 
 import PaperTradePage from './pages/PaperTradePage';
+
 import TradingViewGuide from "./pages/TradingViewGuide";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
     return (
@@ -29,6 +32,7 @@ function App() {
                 {/* PUBLIC EBOOKS ROUTE */}
                 <Route path="/ebooks" element={<UserEbooks />} />
                 <Route path="/paper-trade" element={<PaperTradePage />} />
+                <Route path="/contact" element={<ContactPage />} />
 
                 {/* USER PROTECTED ROUTES */}
                 <Route
@@ -47,6 +51,15 @@ function App() {
                     element={
                         <PrivateRoute requiredRole="admin">
                             <AdminPage />
+                        </PrivateRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin-chat"
+                    element={
+                        <PrivateRoute requiredRole="admin">
+                            <AdminChatPage />
                         </PrivateRoute>
                     }
                 />

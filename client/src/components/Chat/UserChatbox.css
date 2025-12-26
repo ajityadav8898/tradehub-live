@@ -1,0 +1,294 @@
+/* UserChatbox.css - Messenger Light Theme */
+
+/* Responsive Container */
+.chat-root-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    /* Fill the flex parent */
+    background-color: transparent;
+    /* allow parent black background to show */
+    padding: 0;
+}
+
+/* Main Chat Window */
+.chat-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f2f5;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+/* Rounded corners for the "Card" look if it's not mobile full screen. 
+   But user asked for it in general. Let's apply it subtly. 
+   Actually, applying it to container inside ContactPage is better. 
+   Let's simply add it here but it might get cut off by screen edges on mobile.
+*/
+.chat-container {
+    /* If desktop, stronger rounding */
+    border-radius: 0;
+}
+
+@media (min-width: 768px) {
+    .chat-container {
+        max-width: 1000px;
+        height: 100%;
+        margin: 0 auto;
+        border-radius: 24px;
+        /* "50%" look but practical */
+        /* Border radius 50% would make it a circle, which is unusable for a chat window. 
+           We use 24px-30px for a "modern widget" look. */
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Dark Mode Overrides */
+.chat-container.dark {
+    background-color: #121212;
+    color: #e4e6eb;
+}
+
+.chat-container.dark .chat-header,
+.chat-container.dark .chat-input-area {
+    background-color: #242526;
+    border-color: #3e4042;
+    color: #e4e6eb;
+}
+
+.chat-container.dark .user-details h3 {
+    color: #e4e6eb;
+}
+
+.chat-container.dark .chat-box {
+    background-color: #121212;
+}
+
+.chat-container.dark .chat-input-area input {
+    background-color: #3a3b3c;
+    color: #e4e6eb;
+}
+
+.chat-container.dark .icon-btn {
+    color: #b0b3b8;
+}
+
+/* Tablet/Desktop Constraints */
+@media (min-width: 768px) {
+    .chat-container {
+        max-width: 1000px;
+        height: 100%;
+        margin: 0 auto;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        background-color: #fff;
+        /* White bg for desktop view */
+    }
+}
+
+/* Header */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ddd;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    /* Fallback if no image */
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #050505;
+    font-weight: 600;
+}
+
+.user-details .status {
+    font-size: 0.8rem;
+    color: #65676b;
+}
+
+/* Messages Area */
+.chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #f0f2f5;
+}
+
+.chat-container.light .chat-box {
+    background-color: #f0f2f5;
+}
+
+/* Hide scrollbar */
+.chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+/* Message Bubbles */
+.message-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+}
+
+.message-wrapper.user {
+    justify-content: flex-end;
+}
+
+.message-wrapper.admin {
+    justify-content: flex-start;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* User Bubble (Right) - Teal/Green */
+.message.user {
+    background-color: #00bfa5;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.message.user p {
+    color: #ffffff;
+}
+
+/* Admin Bubble (Left) - White */
+.message.admin {
+    background-color: #ffffff;
+    color: #050505;
+    border-bottom-left-radius: 4px;
+}
+
+.message.admin p {
+    color: #050505;
+}
+
+/* Timestamp */
+.timestamp {
+    display: block;
+    text-align: right;
+    font-size: 0.65rem;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+
+.message.admin .timestamp {
+    color: #65676b;
+}
+
+.message.user .timestamp {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Input Area */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #ffffff;
+    gap: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background-color: #f0f2f5;
+    color: #050505;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.chat-input-area input::placeholder {
+    color: #65676b;
+}
+
+.icon-btn,
+.send-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0084ff;
+    /* Messenger Blue */
+    font-size: 1.3rem;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+}
+
+.icon-btn {
+    color: #65676b;
+    /* Grey for attachment/smiley */
+}
+
+.icon-btn:hover {
+    background-color: #f2f2f2;
+    border-radius: 50%;
+}
+
+.send-btn {
+    color: #00bfa5;
+    /* Match bubble */
+}
+
+/* Emoji Picker Positioning */
+.emoji-picker {
+    position: absolute;
+    bottom: 70px;
+    left: 20px;
+    z-index: 20;
+}

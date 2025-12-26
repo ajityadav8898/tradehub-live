@@ -1,432 +1,529 @@
-import React, { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
-import "chart.js/auto";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { io } from "socket.io-client";
+import TradingViewWidget from "./TradingViewWidget";
 import "../../styles/PaperTrade.css";
 
-function isMarketOpen() {
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
-  const min = now.getMinutes();
-  if (day === 0 || day === 6) return false;
-  const mins = hour * 60 + min;
-  return mins >= (9 * 60 + 15) && mins < (15 * 60 + 30);
-}
+axios.defaults.baseURL = "http://localhost:5000";
 
-const initialStocks = [
-  { symbol: "RELIANCE", type: "Stock", price: 2950.5, margin: 0.2, history: [] },
-  { symbol: "TCS", type: "Stock", price: 4200.75, margin: 0.2, history: [] },
-  { symbol: "HDFCBANK", type: "Stock", price: 1650.3, margin: 0.2, history: [] },
-  { symbol: "INFY", type: "Stock", price: 1850.45, margin: 0.2, history: [] },
-  { symbol: "SBIN", type: "Stock", price: 620.60, margin: 0.18, history: [] },
-  { symbol: "ITC", type: "Stock", price: 470.40, margin: 0.18, history: [] },
-  { symbol: "WIPRO", type: "Stock", price: 415.20, margin: 0.2, history: [] },
-  { symbol: "AXISBANK", type: "Stock", price: 1080.75, margin: 0.2, history: [] },
-  { symbol: "MARUTI", type: "Stock", price: 10500.10, margin: 0.19, history: [] },
-  { symbol: "ADANIENT", type: "Stock", price: 3200.00, margin: 0.22, history: [] },
-  { symbol: "ONGC", type: "Stock", price: 180.10, margin: 0.17, history: [] },
-  { symbol: "BAJAJFINSV", type: "Stock", price: 15300.40, margin: 0.17, history: [] },
-];
-const initialIndexes = [
-  { symbol: "NIFTY", type: "Index", price: 25000, margin: 0.5, history: [] },
-  { symbol: "BANKNIFTY", type: "Index", price: 51000, margin: 0.5, history: [] },
+// --- Data Config (Static List, Price comes from Socket) ---
+// --- Default Initial Watchlist ---
+const INITIAL_WATCHLIST = [
+  { symbol: "NIFTY 50", type: "Index", base: 22000 },
+  { symbol: "BANKNIFTY", type: "Index", base: 47000 },
+  { symbol: "RELIANCE", type: "Stock", base: 2500 },
+  { symbol: "TCS", type: "Stock", base: 3500 },
+  { symbol: "HDFCBANK", type: "Stock", base: 1500 },
+  { symbol: "INFY", type: "Stock", base: 1400 },
+  { symbol: "SBIN", type: "Stock", base: 600 },
+  { symbol: "ITC", type: "Stock", base: 450 },
+  { symbol: "ADANIENT", type: "Stock", base: 3000 },
+  { symbol: "TATAMOTORS", type: "Stock", base: 950 },
+  { symbol: "BAJFINANCE", type: "Stock", base: 7000 },
+  { symbol: "MARUTI", type: "Stock", base: 11000 },
+  { symbol: "ONGC", type: "Stock", base: 270 },
+  { symbol: "POWERGRID", type: "Stock", base: 280 },
+  { symbol: "TITAN", type: "Stock", base: 3600 },
+  { symbol: "AXISBANK", type: "Stock", base: 1100 },
+  { symbol: "WIPRO", type: "Stock", base: 480 },
+  { symbol: "LICI", type: "Stock", base: 900 },
+  { symbol: "COALINDIA", type: "Stock", base: 450 },
+  { symbol: "ZOMATO", type: "Stock", base: 160 },
 ];
 
-const initialDiscussion = [
-  {
-    user: "TraderX",
-    text: "Bullish on RELIANCE! Expecting a breakout above 3000 soon.",
-    time: new Date().toLocaleString(),
-  },
-];
+const PaperTradeApp = () => {
+  // --- State ---
+  // --- State ---
+  const [balance, setBalance] = useState(0);
+  const [portfolio, setPortfolio] = useState([]); // Holdings
+  const [orders, setOrders] = useState([]); // History/Book
 
-function clamp(num, min) { return Math.max(num, min); }
-const formatCurrency = (v) => v.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  // Watchlist & Market Data
+  const [watchlist, setWatchlist] = useState(INITIAL_WATCHLIST);
+  const [activeSymbol, setActiveSymbol] = useState(INITIAL_WATCHLIST[2]); // Default to RELIANCE
+  const [livePrices, setLivePrices] = useState({});
+  const [isConnected, setIsConnected] = useState(false);
 
-export default function PaperTradeApp() {
-  const [virtualBalance, setVirtualBalance] = useState(1000000);
-  const [portfolio, setPortfolio] = useState([]);
-  const [openPositions, setOpenPositions] = useState([]);
-  const [marketData, setMarketData] = useState([...initialStocks, ...initialIndexes]);
-  const [tradeForm, setTradeForm] = useState({
-    instrument: "Stock",
-    symbol: "RELIANCE",
-    orderType: "Market",
-    quantity: 1,
-    action: "buy",
-    limitPrice: "",
-    stopLoss: ""
-  });
-  const [portfolioValue, setPortfolioValue] = useState(0);
-  const [totalPnL, setTotalPnL] = useState(0);
-  const [todaysProfit, setTodaysProfit] = useState(0);
-  const [discussion, setDiscussion] = useState(initialDiscussion);
-  const [discussionInput, setDiscussionInput] = useState("");
-  const [selectedChartSymbol, setSelectedChartSymbol] = useState("RELIANCE");
-  const [marketStatusOpen, setMarketStatusOpen] = useState(isMarketOpen());
+  // Search & Categories
+  const [category, setCategory] = useState("All"); // All, Stock, Index
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
+  // UI State
+  const [bottomTab, setBottomTab] = useState("holdings"); // positions, holdings, orders
+  const [orderAction, setOrderAction] = useState("BUY"); // BUY, SELL
+
+  // Order Form
+  const [qty, setQty] = useState(1);
+  const [priceType, setPriceType] = useState("MARKET"); // MARKET, LIMIT
+  const [limitPrice, setLimitPrice] = useState(0);
+
+  const [loading, setLoading] = useState(true);
+
+  // Socket Ref
+  const socketRef = useRef();
+
+  // --- Effect: Socket.io Connection ---
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMarketData((old) =>
-        old.map((item) => {
-          const change = (Math.random() * 1.5 - 0.5) * (Math.random() < 0.5 ? -1 : 1);
-          const price = clamp(item.price + item.price * change / 100, 1);
-          const history = ((item.history && item.history.length > 0) ? [...item.history] : [item.price]);
-          history.push(price);
-          if (history.length > 50) history.shift();
-          return { ...item, price, history };
-        })
-      );
-      setMarketStatusOpen(isMarketOpen());
-    }, 3000);
-    return () => clearInterval(interval);
+    // Connect to Backend
+    socketRef.current = io("http://localhost:5000");
+
+    socketRef.current.on("connect", () => {
+      console.log("✅ Socket Connected to Market Feed");
+      setIsConnected(true);
+    });
+
+    socketRef.current.on("priceUpdate", (prices) => {
+      setLivePrices(prices);
+      setLoading(false); // Data received, stop loading
+    });
+
+    socketRef.current.on("disconnect", () => {
+      console.log("❌ Socket Disconnected");
+      setIsConnected(false);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
   }, []);
 
+  // --- Effect: Fetch User Data ---
   useEffect(() => {
-    let pv = 0, pl = 0;
-    for (const item of portfolio) {
-      const md = marketData.find((m) => m.symbol === item.symbol);
-      if (!md) continue;
-      const curPrice = md.price;
-      pv += curPrice * item.quantity;
-      pl += (curPrice - item.avgPrice) * item.quantity * (item.action === "buy" ? 1 : -1);
-    }
-    setPortfolioValue(pv);
-    setTotalPnL(pl);
-  }, [marketData, portfolio]);
+    fetchData();
+  }, []);
 
-  function handleTrade(e) {
-    e.preventDefault();
-    const { instrument, symbol, orderType, quantity, action, limitPrice, stopLoss } = tradeForm;
-    if (!symbol || !quantity || quantity <= 0) {
-      alert("Enter valid symbol and quantity.");
-      return;
-    }
-    const md = marketData.find((x) => x.symbol === symbol);
-    if (!md) { alert("Symbol not found."); return; }
-    const tradePrice = orderType === "Market" ? md.price : Number(limitPrice);
-    if (orderType === "Limit" && (!tradePrice || tradePrice <= 0)) {
-      alert("Enter valid limit price.");
-      return;
-    }
-    const totalCost = tradePrice * quantity;
-    const marginRequired = totalCost * md.margin;
-    if (action === "buy" && virtualBalance < marginRequired) {
-      alert("Not enough balance for margin.");
-      return;
-    }
-    if (action === "buy") {
-      setVirtualBalance(vb => vb - marginRequired);
-      setPortfolio(pf => {
-        const found = pf.find(p => p.symbol === symbol);
-        if (found) {
-          found.quantity += Number(quantity);
-          found.avgPrice = ((found.avgPrice * found.quantity) + (tradePrice * quantity)) / (found.quantity + Number(quantity));
-          return [...pf];
-        }
-        return [...pf, { symbol, type: instrument, quantity: Number(quantity), avgPrice: tradePrice, action }];
-      });
-      setOpenPositions(op => [
-        ...op,
-        {
-          symbol,
-          type: instrument,
-          orderType,
-          action,
-          quantity: Number(quantity),
-          entryPrice: tradePrice,
-          stopLoss: stopLoss ? Number(stopLoss) : null
-        }
-      ]);
-    } else if (action === "sell") {
-      setPortfolio(pf => {
-        const found = pf.find(p => p.symbol === symbol);
-        if (!found || found.quantity < quantity) {
-          alert("Not enough quantity to sell.");
-          return pf;
-        }
-        found.quantity -= Number(quantity);
-        if (found.quantity <= 0) return pf.filter(p => p !== found);
-        return [...pf];
-      });
-      setVirtualBalance(vb => vb + totalCost * md.margin);
-      setOpenPositions(op => [
-        ...op,
-        {
-          symbol,
-          type: instrument,
-          orderType,
-          action,
-          quantity: Number(quantity),
-          entryPrice: tradePrice,
-          stopLoss: stopLoss ? Number(stopLoss) : null
-        }
-      ]);
-    }
-    setTradeForm({ ...tradeForm, quantity: 1, limitPrice: "", stopLoss: "" });
-  }
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const config = { headers: { "x-auth-token": token } };
 
-  function handleOpenPositionAction(idx, action) {
-    if (action === "sell" || action === "cancel") {
-      setOpenPositions(arr => arr.filter((_, i) => i !== idx));
-    } else if (action === "set-stop") {
-      const stopPrice = Number(prompt("Enter stop-loss price:"));
-      if (isNaN(stopPrice) || stopPrice <= 0) return;
-      setOpenPositions(pos => pos.map((p, i) => (i === idx ? { ...p, stopLoss: stopPrice } : p)));
+      const portRes = await axios.get("/api/trade/portfolio", config);
+      setBalance(portRes.data.balance);
+      setPortfolio(portRes.data.portfolio);
+
+      const histRes = await axios.get("/api/trade/history", config);
+      setOrders(histRes.data);
+    } catch (err) {
+      console.error(err);
+      // Don't modify loading here, wait for socket
     }
-  }
-
-  function handlePostDiscussion(e) {
-    e.preventDefault();
-    if (!discussionInput.trim()) return;
-    setDiscussion(ds => [
-      { user: "You", text: discussionInput.trim(), time: new Date().toLocaleString() },
-      ...ds,
-    ]);
-    setDiscussionInput("");
-  }
-
-  const chartSymbol = marketData.find((m) => m.symbol === selectedChartSymbol) || marketData[0];
-  const chartData = {
-    labels: chartSymbol.history?.map((_, i) => `T-${(chartSymbol.history.length - i) * 3}s`) || [],
-    datasets: [
-      {
-        label: `${chartSymbol.symbol} Price`,
-        data: chartSymbol.history || [chartSymbol.price],
-        fill: true,
-        backgroundColor: "rgba(59, 130, 246, 0.15)",
-        borderColor: "#3b82f6",
-        tension: 0.2
-      }
-    ]
   };
+
+  // --- Search Logic ---
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length > 2) {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await axios.get(`/api/trade/search?query=${searchQuery}`, {
+            headers: { "x-auth-token": token }
+          });
+          setSearchResults(res.data);
+        } catch (err) {
+          console.error("Search failed", err);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const addToWatchlist = (item) => {
+    // Map Yahoo Finance result to internal structure
+    const symbol = item.symbol.replace(".NS", "").replace(".BO", ""); // Clean symbol
+    const newItem = {
+      symbol: symbol,
+      type: "Stock", // Default to Stock for search results
+      base: item.regularMarketPrice || 0
+    };
+
+    // Prevent duplicates
+    if (!watchlist.find(w => w.symbol === newItem.symbol)) {
+      setWatchlist(prev => [newItem, ...prev]);
+    }
+    setActiveSymbol(newItem);
+    setSearchQuery(""); // Clear search to show watchlist again
+    setSearchResults([]);
+  };
+
+  // --- Handlers ---
+  const handleOrder = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login");
+
+    // SERVER SIDE PRICING: We do NOT send price for Market orders.
+    // The server determines the execution price.
+
+    // UI Validation only
+    const estimatedPrice = livePrices[activeSymbol.symbol];
+    if (priceType === 'LIMIT' && (!limitPrice || limitPrice <= 0)) {
+      return alert("Please enter valid Limit Price");
+    }
+
+    try {
+      const payload = {
+        symbol: activeSymbol.symbol,
+        instrument: activeSymbol.type === "Index" ? "Options" : "Equity",
+        action: orderAction,
+        quantity: Number(qty),
+        orderType: priceType
+      };
+
+      if (priceType === 'LIMIT') {
+        payload.limitPrice = Number(limitPrice);
+      }
+
+      await axios.post("/api/trade/place", payload, { headers: { "x-auth-token": token } });
+
+      // alert("Order Placed Successfully"); // Removed for instant feel
+
+      // OPTIONAL: Reset form
+      // setQty(1);
+
+      // Refresh Data
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Order Failed");
+    }
+  };
+
+  // --- Handlers ---
+  const handleExit = (pos) => {
+    // 1. Find the symbol object (try watchlist first, else fallback)
+    let target = watchlist.find(w => w.symbol === pos.symbol);
+    if (!target) {
+      target = { symbol: pos.symbol, type: "Stock", base: pos.averagePrice };
+    }
+
+    // 2. Set UI State
+    setActiveSymbol(target);
+    setOrderAction("SELL");
+    setQty(pos.quantity);
+    setPriceType("MARKET"); // Default to Market for exit
+
+    // 3. Scroll to Order Panel (Mobile/Small screens) if needed
+    // document.querySelector('.order-panel').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleReset = async () => {
+    if (!window.confirm("Reset Virtual Account Balance to ₹10L?")) return;
+    const token = localStorage.getItem("token");
+    await axios.post("/api/trade/reset", {}, { headers: { "x-auth-token": token } });
+    fetchData();
+  };
+
+  // --- Formatters ---
+  const money = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(val);
+  const num = (val) => new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
+
+  // --- Render ---
+  if (loading) return <div className="trade-app-root" style={{ alignItems: 'center', justifyContent: 'center' }}>Connecting to Market Feed...</div>;
+
+  const currentPrice = livePrices[activeSymbol.symbol] || 0;
+  // Use dynamic watchlist for base price
+  const basePrice = watchlist.find(x => x.symbol === activeSymbol.symbol)?.base || 1;
+  const isUp = currentPrice >= basePrice;
+  const priceColor = isUp ? "text-green" : "text-red";
+  const pctChange = ((currentPrice - basePrice) / basePrice) * 100;
+
+  // Filter Watchlist
+  const filteredWatchlist = watchlist.filter(item => {
+    if (category === "All") return true;
+    if (category === "Index") return item.type === "Index";
+    if (category === "Stock") return item.type === "Stock";
+    return true;
+  });
 
   return (
     <div className="trade-app-root">
-      <header className="header">
-        <div className="header-title-wrap">
-          <h1>TradeHub Virtual Trading Simulator</h1>
-          <span>Master stocks and options with ₹10,00,000 virtual cash!</span>
-        </div>
-        <div className="market-status">
-          <span className={marketStatusOpen ? "market-open" : "market-closed"}>
-            {marketStatusOpen ? "MARKET OPEN" : "MARKET CLOSED"}
-          </span>
-        </div>
-      </header>
-      <section className="dashboard">
-        <div className="card portfolio-summary modern-summary">
-          <h2>Portfolio Summary</h2>
-          <div className="summary-row">
-            <span className="label">Virtual Balance:</span>
-            <span className="value">{`₹ ${formatCurrency(virtualBalance)}`}</span>
+
+      {/* Top Ticker Bar */}
+      <div className="indices-ticker">
+        <div className="ticker-group">
+          <div className="ticker-item">
+            <span className="ticker-label">NIFTY 50</span>
+            <span className={`ticker-value ${livePrices["NIFTY 50"] >= 22000 ? "text-green" : "text-red"}`}>
+              {num(livePrices["NIFTY 50"])}
+            </span>
           </div>
-          <div className="summary-row">
-            <span className="label">Portfolio Value:</span>
-            <span className="value">{`₹ ${formatCurrency(portfolioValue)}`}</span>
+          <div className="ticker-item">
+            <span className="ticker-label">BANKNIFTY</span>
+            <span className={`ticker-value ${livePrices["BANKNIFTY"] >= 47000 ? "text-green" : "text-red"}`}>
+              {num(livePrices["BANKNIFTY"])}
+            </span>
           </div>
-          <div className="summary-row">
-            <span className="label">Total P&L:</span>
-            <span className={`value ${totalPnL >= 0 ? "profit" : "loss"}`}>{`₹ ${formatCurrency(totalPnL)}`}</span>
-          </div>
-          <div className="summary-row">
-            <span className="label">Today's Profit:</span>
-            <span className={`value ${todaysProfit >= 0 ? "highlight" : "loss"}`}>{`₹ ${formatCurrency(todaysProfit)}`}</span>
+          <div className="ticker-item">
+            <span className="ticker-label" style={{ fontSize: '0.7rem', opacity: 0.5 }}>
+              {isConnected ? '🟢 LIVE FEED' : '🔴 DISCONNECTED'}
+            </span>
           </div>
         </div>
-        <div className="card chart-section">
-          <h2>Price Chart</h2>
-          <select
-            value={selectedChartSymbol}
-            onChange={e => setSelectedChartSymbol(e.target.value)}
-            className="input-select"
-          >
-            {marketData.map((item) => (
-              <option key={item.symbol} value={item.symbol}>{item.symbol}</option>
-            ))}
-          </select>
-          <div style={{height:"270px"}}>
-            <Line data={chartData} options={{
-              plugins: { legend: {labels:{color: "#f9fafb"}} },
-              scales: { x: {ticks: {color:"#d1d5db"}}, y:{ticks:{color:"#d1d5db"}} }
-            }} />
-          </div>
+
+        <div className="user-funds">
+          <span>Available Margin: <strong className="text-mono" style={{ color: 'white' }}>{money(balance)}</strong></span>
+          <button className="btn-reset" onClick={handleReset}>Reset Funds</button>
         </div>
-      </section>
-      <section className="dashboard">
-        <div className="card trade-form-panel">
-          <h2>Place Trade</h2>
-          <form onSubmit={handleTrade}>
-            <select
-              className="input-select"
-              value={tradeForm.instrument}
-              onChange={e => setTradeForm(tf => ({ ...tf, instrument: e.target.value }))}
-            >
-              <option value="Stock">Stock</option>
-              <option value="Index">Index</option>
-            </select>
-            <select
-              className="input-select"
-              value={tradeForm.symbol}
-              onChange={e => setTradeForm(tf => ({ ...tf, symbol: e.target.value }))}
-              required
-            >
-              {marketData.map((s) => (
-                <option key={s.symbol} value={s.symbol}>{s.symbol}</option>
+      </div>
+
+      <div className="pro-layout">
+
+        {/* LEFT: Watchlist */}
+        <div className="watchlist-sidebar">
+          <div className="watchlist-header">
+            {/* Search Input */}
+            <input
+              type="text"
+              placeholder="Search Stocks (e.g. ZOMATO)"
+              className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
+            {/* Category Tabs */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px', fontSize: '0.8rem' }}>
+              {["All", "Stock", "Index"].map(cat => (
+                <span
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  style={{
+                    cursor: 'pointer',
+                    color: category === cat ? 'var(--pt-acc-blue)' : '#888',
+                    fontWeight: category === cat ? 'bold' : 'normal'
+                  }}
+                >
+                  {cat}
+                </span>
               ))}
-            </select>
-            <select
-              className="input-select"
-              value={tradeForm.orderType}
-              onChange={e => setTradeForm(tf => ({ ...tf, orderType: e.target.value }))}
-            >
-              <option value="Market">Market</option>
-              <option value="Limit">Limit</option>
-            </select>
-            {tradeForm.orderType === "Limit" && (
-              <input
-                className="input-field"
-                type="number"
-                value={tradeForm.limitPrice}
-                onChange={e => setTradeForm(tf => ({ ...tf, limitPrice: e.target.value }))}
-                placeholder="Limit Price"
-                min="1"
-                step="0.01"
-                required
-              />
+            </div>
+          </div>
+
+          <div className="watchlist-items">
+            {/* Render Search Results OR Watchlist */}
+
+            {searchQuery.length > 2 && searchResults.length > 0 ? (
+              searchResults.map((item, idx) => (
+                <div key={idx} className="wl-item" onClick={() => addToWatchlist(item)}>
+                  <div className="wl-sym-group">
+                    <span className="wl-sym">{item.symbol}</span>
+                    <span className="wl-exch">{item.exchange}</span>
+                  </div>
+                  <div className="wl-price-group">
+                    <div className="wl-price text-mono">{item.regularMarketPrice}</div>
+                    <div className="wl-change" style={{ fontSize: '0.7em', color: '#888' }}>+ Click to Add</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              filteredWatchlist.map((item) => {
+                const price = livePrices[item.symbol] || item.base;
+                const change = ((price - item.base) / item.base) * 100;
+                const isItemUp = change >= 0;
+
+                return (
+                  <div
+                    key={item.symbol}
+                    className={`wl-item ${activeSymbol.symbol === item.symbol ? 'active' : ''}`}
+                    onClick={() => setActiveSymbol(item)}
+                  >
+                    <div className="wl-sym-group">
+                      <span className="wl-sym">{item.symbol}</span>
+                      <span className="wl-exch">{item.type}</span>
+                    </div>
+                    <div className="wl-price-group">
+                      <div className={`wl-price ${isItemUp ? 'text-green' : 'text-red'}`}>{num(price)}</div>
+                      <div className="wl-change" style={{ color: isItemUp ? 'var(--pt-acc-green)' : 'var(--pt-acc-red)' }}>
+                        {isItemUp ? '+' : ''}{change.toFixed(2)}%
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
             )}
-            <input
-              className="input-field"
-              type="number"
-              value={tradeForm.quantity}
-              onChange={e => setTradeForm(tf => ({ ...tf, quantity: e.target.value }))}
-              placeholder="Quantity"
-              min="1"
-              required
-            />
-            <input
-              className="input-field"
-              type="number"
-              value={tradeForm.stopLoss}
-              onChange={e => setTradeForm(tf => ({ ...tf, stopLoss: e.target.value }))}
-              placeholder="Stop Loss (Optional)"
-              min="1"
-              step="0.01"
-            />
-            <select
-              className="input-select"
-              value={tradeForm.action}
-              onChange={e => setTradeForm(tf => ({ ...tf, action: e.target.value }))}
-            >
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
-            </select>
-            <button className="button-primary" type="submit">
-              Place Trade
+
+          </div>
+        </div>
+
+        {/* CENTER: Chart & Positions */}
+        <div className="trade-center">
+          <div className="chart-area">
+            {/* Force re-mount on symbol change so chart updates completely */}
+            <TradingViewWidget key={activeSymbol.symbol} symbol={activeSymbol.symbol} height="100%" theme="dark" />
+          </div>
+
+          <div className="bottom-panel">
+            <div className="bottom-tabs">
+              <div className={`b-tab ${bottomTab === 'holdings' ? 'active' : ''}`} onClick={() => setBottomTab('holdings')}>Holdings</div>
+              <div className={`b-tab ${bottomTab === 'orders' ? 'active' : ''}`} onClick={() => setBottomTab('orders')}>Order Book</div>
+            </div>
+
+            <div className="bottom-content">
+              {bottomTab === 'position_placeholder' && (
+                <div style={{ padding: '20px', color: '#666', textAlign: 'center', marginTop: '20px' }}>
+                  No open intraday positions.
+                </div>
+              )}
+
+              {bottomTab === 'holdings' && (
+                <table className="pro-table">
+                  <thead>
+                    <tr>
+                      <th>Instrument</th>
+                      <th>Qty</th>
+                      <th>Avg. Cost</th>
+                      <th>LTP</th>
+                      <th>Cur. Val</th>
+                      <th>P&L</th>
+                      <th>Net Chg</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {portfolio.map((pos, idx) => {
+                      const ltp = livePrices[pos.symbol] || pos.averagePrice;
+                      const curVal = pos.quantity * ltp;
+                      const invVal = pos.quantity * pos.averagePrice;
+                      const pnl = curVal - invVal;
+                      const pnlPct = (pnl / invVal) * 100;
+                      const isProf = pnl >= 0;
+
+                      return (
+                        <tr key={idx}>
+                          <td>{pos.symbol} <span className="text-muted" style={{ fontSize: '0.7em', color: '#666' }}>EQ</span></td>
+                          <td>{pos.quantity}</td>
+                          <td>{num(pos.averagePrice)}</td>
+                          <td className={isProf ? 'text-green' : 'text-red'}>{num(ltp)}</td>
+                          <td>{num(curVal)}</td>
+                          <td className={isProf ? 'text-green' : 'text-red'}>{isProf ? '+' : ''}{num(pnl)}</td>
+                          <td className={isProf ? 'text-green' : 'text-red'}>{pnlPct.toFixed(2)}%</td>
+                          <td>
+                            <button
+                              className="btn-sell-holding"
+                              style={{
+                                backgroundColor: 'var(--pt-acc-red)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '4px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
+                              }}
+                              onClick={() => handleExit(pos)}
+                            >
+                              Exit
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {portfolio.length === 0 && (
+                      <tr><td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#555' }}>No Holdings Found</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {bottomTab === 'orders' && (
+                <table className="pro-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Type</th>
+                      <th>Instrument</th>
+                      <th>Qty</th>
+                      <th>Exec. Price</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((ord, idx) => (
+                      <tr key={idx}>
+                        <td style={{ textAlign: 'left' }}>{new Date(ord.timestamp).toLocaleTimeString()}</td>
+                        <td>
+                          <span className={ord.action === "BUY" ? "text-green" : "text-red"} style={{ fontWeight: 600 }}>
+                            {ord.action}
+                          </span>
+                        </td>
+                        <td>{ord.symbol}</td>
+                        <td>{ord.quantity}</td>
+                        <td>{num(ord.price)}</td>
+                        <td><span style={{ background: '#222', padding: '2px 6px', borderRadius: '4px', border: '1px solid #333' }}>{ord.status}</span></td>
+                      </tr>
+                    ))}
+                    {orders.length === 0 && (
+                      <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#555' }}>No Orders Placed Today</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Order Panel */}
+        <div className="order-panel">
+          <div className="order-header">
+            <div>
+              <h3 className="oh-symbol">{activeSymbol.symbol}</h3>
+              <span className="oh-exc">NSE &bull; Stock</span>
+            </div>
+            <div className="oh-price-group">
+              <div className={`oh-price ${priceColor}`}>{num(currentPrice)}</div>
+              <div className="oh-exc" style={{ color: isUp ? 'var(--pt-acc-green)' : 'var(--pt-acc-red)' }}>{isUp ? '+' : ''}{pctChange.toFixed(2)}%</div>
+            </div>
+          </div>
+
+          <form onSubmit={handleOrder} className="order-form">
+
+            <div className="order-tabs">
+              <div className={`o-tab buy ${orderAction === 'BUY' ? 'active' : ''}`} onClick={() => setOrderAction('BUY')}>BUY</div>
+              <div className={`o-tab sell ${orderAction === 'SELL' ? 'active' : ''}`} onClick={() => setOrderAction('SELL')}>SELL</div>
+            </div>
+
+            <div className="form-group">
+              <label>Quantity</label>
+              <input type="number" className="form-input" value={qty} onChange={e => setQty(e.target.value)} min="1" />
+            </div>
+
+            <div className="form-group">
+              <label>Price</label>
+              <div className="radio-group" style={{ marginBottom: '8px' }}>
+                <label className="radio-label">
+                  <input type="radio" checked={priceType === 'MARKET'} onChange={() => setPriceType('MARKET')} /> Market
+                </label>
+                <label className="radio-label">
+                  <input type="radio" checked={priceType === 'LIMIT'} onChange={() => setPriceType('LIMIT')} /> Limit
+                </label>
+              </div>
+              <input
+                type="number"
+                className="form-input"
+                value={priceType === 'MARKET' ? 0 : limitPrice}
+                disabled={priceType === 'MARKET'}
+                onChange={e => setLimitPrice(e.target.value)}
+                placeholder={priceType === 'MARKET' ? 'Market Price' : '0.00'}
+              />
+            </div>
+
+            <div className="margin-req">
+              <span>Est. Total</span>
+              <span className="margin-val">~ {money(qty * (priceType === 'MARKET' ? currentPrice : Number(limitPrice || currentPrice)))}</span>
+            </div>
+
+            <button type="submit" className={`btn-submit ${orderAction === 'BUY' ? 'buy' : 'sell'}`}>
+              {orderAction} {activeSymbol.symbol}
             </button>
           </form>
         </div>
-        <div className="card open-positions modern-table-card">
-          <h2>Open Positions</h2>
-          <table className="styled-table">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Type</th>
-                <th>Qty</th>
-                <th>Entry</th>
-                <th>Current</th>
-                <th>P/L</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {openPositions.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="text-muted">No open positions.</td>
-                </tr>
-              )}
-              {openPositions.map((pos, idx) => {
-                const md = marketData.find(m => m.symbol === pos.symbol) || {};
-                const pl = ((md.price - pos.entryPrice) * pos.quantity * (pos.action === "buy" ? 1 : -1));
-                return (
-                  <tr key={idx}>
-                    <td>{pos.symbol}</td>
-                    <td>{pos.type}</td>
-                    <td>{pos.quantity}</td>
-                    <td>{formatCurrency(pos.entryPrice)}</td>
-                    <td>{formatCurrency(md.price)}</td>
-                    <td className={pl >= 0 ? "profit" : "loss"}>{formatCurrency(pl)}</td>
-                    <td>
-                      <button onClick={() => handleOpenPositionAction(idx, "sell")} className="btn-sell">Sell</button>
-                      <button onClick={() => handleOpenPositionAction(idx, "set-stop")} className="btn-stop">Set Stop-Loss</button>
-                      <button onClick={() => handleOpenPositionAction(idx, "cancel")} className="btn-cancel">Cancel</button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section className="dashboard">
-        <div className="card portfolio-table">
-          <h2>Your Portfolio</h2>
-          <table className="styled-table">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Type</th>
-                <th>Qty</th>
-                <th>Avg. Price</th>
-                <th>Current</th>
-                <th>P/L</th>
-              </tr>
-            </thead>
-            <tbody>
-              {portfolio.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-muted">No holdings.</td>
-                </tr>
-              )}
-              {portfolio.map((item, idx) => {
-                const md = marketData.find((m) => m.symbol === item.symbol);
-                const pl = md ? (md.price - item.avgPrice) * item.quantity : 0;
-                return (
-                  <tr key={idx}>
-                    <td>{item.symbol}</td>
-                    <td>{item.type}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatCurrency(item.avgPrice)}</td>
-                    <td>{md ? formatCurrency(md.price) : "—"}</td>
-                    <td className={pl >= 0 ? "profit" : "loss"}>{formatCurrency(pl)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="card community-section">
-          <h2>Community Discussion</h2>
-          <form className="discussion-form" onSubmit={handlePostDiscussion}>
-            <input
-              className="input-field"
-              value={discussionInput}
-              onChange={e => setDiscussionInput(e.target.value)}
-              placeholder="Share your trade ideas or questions..."
-            />
-            <button className="btn-post" type="submit">Post</button>
-          </form>
-          <div className="discussion-feed">
-            {discussion.map((post, idx) => (
-              <div key={idx} className="discussion-post">
-                <b>{post.user}</b> <span className="text-muted">{post.time}</span>
-                <p>{post.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
+      </div>
     </div>
   );
-}
+};
+
+export default PaperTradeApp;

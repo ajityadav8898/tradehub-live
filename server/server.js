@@ -61,9 +61,17 @@ app.use(express.urlencoded({ extended: true }));
 const staticPath = path.join(__dirname, '..', 'client', 'build');
 app.use(express.static(staticPath));
 
+// Serve Uploads Statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // --- 4. API ROUTING ---
 app.use("/api/auth", authRoutes);
 app.use("/api/ebooks", ebooksRoutes);
+app.use("/api/trade", require("./routes/tradeRoutes"));
+app.use("/api/chat", require("./routes/chatRoutes"));
+
+// --- Import Chat Model ---
+const ChatMessage = require("./models/ChatMessage");
 
 // --- 5. CLIENT-SIDE ROUTING (Final Catch-all) ---
 app.use((req, res, next) => {
@@ -74,19 +82,78 @@ app.use((req, res, next) => {
 });
 
 
-// --- 6. SOCKET.IO SETUP (for Chat) ---
+// --- 6. SOCKET.IO SETUP (for Chat & Market Data) ---
 const io = new Server(server, {
     cors: corsOptions,
 });
 
+// Initialize Market Data Service (Starts Ticker)
+const marketDataService = require("./services/MarketDataService");
+marketDataService.init(io);
+
+// Track connected users by userId
+const connectedUsers = new Map(); // Map of socket.id to userId
+
 io.on("connection", (socket) => {
-    console.log(`\n💬 A user connected for chat: ${socket.id}`);
+    console.log(`\n💬 A user connected: ${socket.id}`);
+
+    // Send initial prices immediately upon connection
+    socket.emit("priceUpdate", marketDataService.currentPrices);
+
+    // --- CHAT EVENTS ---
+    socket.on("set_user_id", (userId) => {
+        connectedUsers.set(socket.id, userId);
+        console.log(`User ${userId} connected with socket ${socket.id}`);
+    });
+
+    socket.on("send_message", (data) => {
+        console.log(`📨 SERVER RECEIVED MSG from ${data.sender}: ${data.text}`);
+        const userId = data.userId || "defaultUserId";
+        const messageData = {
+            text: data.message || data.text, // Handle both formats
+            message: data.message || data.text,
+            sender: data.sender,
+            userId: userId,
+            timestamp: new Date()
+        };
+
+        // Save to DB
+        const newMessage = new ChatMessage(messageData);
+        newMessage.save().then(() => {
+            console.log("✅ Message SAVED to DB. Broadcasting...");
+            // Broadcast to everyone (admin needs to see it too)
+            io.emit("receive_message", messageData);
+
+            // Auto-reply logic (if user sent message)
+            if (data.sender === "user") {
+                // Check if user already got auto-reply in this session
+                const userState = connectedUsers.get(socket.id) || {};
+                if (!userState.hasReceivedDefault) {
+                    console.log("🤖 Sending Auto-Reply...");
+                    const autoReply = {
+                        text: "Wait for the admin or support team reply",
+                        message: "Wait for the admin or support team reply",
+                        sender: "admin",
+                        userId: userId,
+                        timestamp: new Date()
+                    };
+                    const adminMsg = new ChatMessage(autoReply);
+                    adminMsg.save().then(() => {
+                        io.emit("receive_message", autoReply);
+                        // Mark as replied
+                        connectedUsers.set(socket.id, { ...userState, hasReceivedDefault: true });
+                    });
+                }
+            }
+        }).catch(err => console.error("❌ Chat Save Error:", err));
+    });
 
     socket.on("disconnect", () => {
-        console.log("User disconnected from chat");
+        console.log(`❌ User disconnected: ${socket.id}`);
+        connectedUsers.delete(socket.id);
     });
 });
 
 // --- 7. SERVER START ---
-const PORT = process.env.PORT || 5000;
+const PORT = 5001; // Hardcoded to prevent conflicts
 server.listen(PORT, () => console.log(`\n🚀 TradeHub Unified Backend Server listening on port ${PORT}`));
