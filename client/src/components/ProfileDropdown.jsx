@@ -15,10 +15,10 @@ const ProfileDropdown = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null); 
+    const dropdownRef = useRef(null);
 
     // --- Removed the shuffling logic to simplify ---
-    
+
     // Implement Click-Outside-to-Close logic (Remains the same)
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -33,18 +33,18 @@ const ProfileDropdown = () => {
         };
     }, [dropdownRef]);
 
-    const username = user?.username || "Dashboard"; 
+    const username = user?.username || "Dashboard";
 
     const handleDashboardClick = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         setIsOpen(false);
         navigate("/dashboard");
     };
 
     return (
         <div className="profile-dropdown-container" ref={dropdownRef}>
-            <button 
-                className="profile-icon-button" 
+            <button
+                className="profile-icon-button"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {/* ✅ FIX: Use Bootstrap Icon directly instead of React Component */}
@@ -53,7 +53,7 @@ const ProfileDropdown = () => {
 
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div 
+                    <motion.div
                         className="dropdown-menu"
                         variants={dropdownVariants}
                         initial="hidden"
@@ -62,15 +62,15 @@ const ProfileDropdown = () => {
                     >
                         <div className="username-display">
                             <span>Welcome,</span>
-                            <strong>{user?.username || "Trader"}</strong>
+                            <strong>{user?.username || user?.user?.username || "Trader"}</strong>
                         </div>
-                        
+
                         <a href="#" onClick={handleDashboardClick} className="dropdown-item">
                             <i className="bi bi-speedometer2"></i> Dashboard
                         </a>
 
-                        <button 
-                            onClick={logout} 
+                        <button
+                            onClick={logout}
                             className="dropdown-item logout-btn"
                         >
                             <i className="bi bi-box-arrow-right"></i> Log Out

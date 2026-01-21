@@ -7,7 +7,7 @@ import axios from "axios";
 import "./UserChatbox.css";
 
 // Connect to the unified backend
-const SOCKET_URL = "http://localhost:5001";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5001";
 const socket = io(SOCKET_URL);
 
 const UserChatbox = () => {

@@ -7,10 +7,10 @@ import axios from "axios";
 import "./AdminChatbox.css";
 
 // Connect to Unified Backend
-const SOCKET_URL = "http://localhost:5001";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5001";
 const socket = io(SOCKET_URL);
 
-const AdminChatbox = () => {
+const AdminChatbox = ({ targetUserId }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [darkMode, setDarkMode] = useState(false); // Default false for this theme
@@ -23,9 +23,7 @@ const AdminChatbox = () => {
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
-    // Admin monitoring a specific user (Hardcoded 'guest_user' for demo, ideally select from list)
-    // In a real app, Admin would see a list of users. For this migration, we mirror UserChatbox.
-    const targetUserId = "guest_user"; // Must match UserChatbox default
+    // Admin monitoring a specific user (received via prop)
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -64,7 +62,7 @@ const AdminChatbox = () => {
             socket.off("connect");
             socket.off("receive_message");
         };
-    }, []);
+    }, [targetUserId]);
 
     const sendMessage = () => {
         if (input.trim() !== "") {
@@ -173,9 +171,9 @@ const AdminChatbox = () => {
             <div className={`admin-chat-container ${darkMode ? "dark" : "light"}`}>
                 <div className="admin-chat-header">
                     <div className="header-info">
-                        <div className="avatar admin-avatar">GU</div>
+                        <div className="avatar admin-avatar">{(targetUserId || "GU").substring(0, 2).toUpperCase()}</div>
                         <div className="user-details">
-                            <h3>Guest User</h3>
+                            <h3>{targetUserId || "Select User"}</h3>
                             <span className="status">Active Now</span>
                         </div>
                     </div>

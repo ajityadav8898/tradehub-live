@@ -10,7 +10,7 @@ const AdminEbooks = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [pdfLink, setPdfLink] = useState(""); // GitHub Raw Link
   const [isLoading, setIsLoading] = useState(true);
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
 
   const getToken = () => localStorage.getItem("token");
 

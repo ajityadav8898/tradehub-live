@@ -4,7 +4,7 @@ import axios from 'axios';
 import { decodeTokenPayload } from '../utils/authUtils';
 import useLoadCss from '../utils/useLoadCss';
 
-const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api') + '/auth';
+const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5001/api') + '/auth';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ const LoginPage = () => {
     // State to manage form inputs
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const [signupUsername, setSignupUsername] = useState('');
     const [signupEmail, setSignupEmail] = useState('');
@@ -167,7 +168,18 @@ const LoginPage = () => {
                             </div>
                             <div className="input-group">
                                 <i className='bx bxs-lock-alt'></i>
-                                <input type="password" placeholder="Password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    value={loginPassword}
+                                    onChange={(e) => setLoginPassword(e.target.value)}
+                                    required
+                                />
+                                <i
+                                    className={`bx ${showPassword ? 'bx-show' : 'bx-hide'}`}
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{ cursor: 'pointer', position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                                ></i>
                             </div>
                             <button type="submit">Sign in</button>
                             <p>

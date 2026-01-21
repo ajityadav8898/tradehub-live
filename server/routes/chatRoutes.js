@@ -38,6 +38,10 @@ router.post('/upload', upload.single('file'), (req, res) => {
     res.json({ url: fileUrl, type: fileType });
 });
 
+// @route   GET /api/chat/users
+// @desc    Get all users
+router.get("/users", chatController.getUsers);
+
 // @route   GET /api/chat/:userId
 // @desc    Get chat history
 router.get("/:userId", chatController.getMessages);

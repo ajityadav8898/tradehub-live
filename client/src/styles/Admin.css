@@ -35,6 +35,37 @@
     font-size: 1.2rem;
 }
 
+.admin-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-logout-btn {
+    background: transparent;
+    color: var(--text-gray);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-logout-btn:hover {
+    background: rgba(255, 77, 77, 0.1);
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+    transform: translateY(-2px);
+}
+
 /* Dashboard Grid */
 .dashboard-grid {
     display: grid;

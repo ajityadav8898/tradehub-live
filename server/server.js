@@ -67,7 +67,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // --- 4. API ROUTING ---
 app.use("/api/auth", authRoutes);
 app.use("/api/ebooks", ebooksRoutes);
-app.use("/api/trade", require("./routes/tradeRoutes"));
+// // app.use("/api/trade", require("./routes/tradeRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
 
 // --- Import Chat Model ---
@@ -88,8 +88,8 @@ const io = new Server(server, {
 });
 
 // Initialize Market Data Service (Starts Ticker)
-const marketDataService = require("./services/MarketDataService");
-marketDataService.init(io);
+// // const marketDataService = require("./services/MarketDataService");
+// // marketDataService.init(io);
 
 // Track connected users by userId
 const connectedUsers = new Map(); // Map of socket.id to userId
@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
     console.log(`\n💬 A user connected: ${socket.id}`);
 
     // Send initial prices immediately upon connection
-    socket.emit("priceUpdate", marketDataService.currentPrices);
+    // // socket.emit("priceUpdate", marketDataService.currentPrices);
 
     // --- CHAT EVENTS ---
     socket.on("set_user_id", (userId) => {

@@ -10,6 +10,13 @@
     transition: background-color 0.3s ease, height 0.3s ease;
 }
 
+/* Navbar Auth Buttons Alignment Fix */
+.desktop-auth {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* General Section Styling */
 .section-container {
     padding: 4rem 2rem;
