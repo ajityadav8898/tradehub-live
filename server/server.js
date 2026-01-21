@@ -93,12 +93,24 @@ app.use("/api/chat", require("./routes/chatRoutes"));
 const ChatMessage = require("./models/ChatMessage");
 
 // --- 5. CLIENT-SIDE ROUTING (Final Catch-all) ---
-app.use((req, res, next) => {
-    if (!req.path.startsWith('/api/') && req.accepts('html')) {
-        return res.sendFile(path.join(staticPath, 'index.html'));
-    }
-    next();
-});
+// --- 5. CLIENT-SIDE ROUTING (Final Catch-all) ---
+// On Render (Backend only), client/build won't exist. We should not crash.
+const fs = require('fs');
+
+if (fs.existsSync(staticPath)) {
+    console.log("📂 Serving static frontend from:", staticPath);
+    app.use((req, res, next) => {
+        if (!req.path.startsWith('/api/') && req.accepts('html')) {
+            return res.sendFile(path.join(staticPath, 'index.html'));
+        }
+        next();
+    });
+} else {
+    console.log("⚠️ No client build found (Expected on Render Backend-only deployment). Serving API root.");
+    app.get("/", (req, res) => {
+        res.send("API is Running 🚀 (Frontend is hosted separately on Vercel)");
+    });
+}
 
 
 // --- 6. SOCKET.IO SETUP (for Chat & Market Data) ---
