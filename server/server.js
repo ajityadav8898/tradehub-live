@@ -186,5 +186,6 @@ io.on("connection", (socket) => {
 });
 
 // --- 7. SERVER START ---
-const PORT = 5001; // Hardcoded to prevent conflicts
+// --- 7. SERVER START ---
+const PORT = process.env.PORT || 5001; // Use Render's port or fallback to 5001 locally
 server.listen(PORT, () => console.log(`\n🚀 TradeHub Unified Backend Server listening on port ${PORT}`));
