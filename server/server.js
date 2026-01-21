@@ -44,7 +44,26 @@ connectDB();
 
 // --- 2. CORS Configuration ---
 const corsOptions = {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        // Dynamic Allow List
+        const allowedOrigins = [
+            "http://localhost:3000",
+            "http://localhost:5000",
+            "http://localhost:5001",
+            process.env.CLIENT_URL // Explicit env var
+        ];
+
+        // Check if origin is in strict list OR matches .vercel.app pattern
+        if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+            callback(null, true);
+        } else {
+            console.log("🚫 CORS BLOCKED:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
 };
