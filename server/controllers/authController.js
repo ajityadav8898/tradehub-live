@@ -25,8 +25,8 @@ exports.signup = async (req, res) => {
 // ✅ User Login function
 exports.login = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
+        const { email, password } = req.body; // Frontend sends email, not username
+        const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
