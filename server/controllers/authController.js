@@ -12,8 +12,8 @@ exports.signup = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, email, password: hashedPassword });
+        // const hashedPassword = await bcrypt.hash(password, 10); // REMOVED: User model handles hashing
+        const newUser = new User({ username, email, password }); // Pass plain password
         await newUser.save();
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
