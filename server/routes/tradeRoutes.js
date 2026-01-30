@@ -23,4 +23,12 @@ router.post("/reset", protect, tradeController.resetAccount);
 // @desc    Search for new symbols
 router.get("/search", protect, tradeController.searchSymbols);
 
+// @route   PUT /api/trade/positions/:id/stoploss
+// @desc    Update Stop Loss for a position
+router.put("/positions/stoploss", protect, tradeController.updateStopLoss);
+
+// @route   POST /api/trade/execute
+// @desc    Execute a pending limit order
+router.post("/execute", protect, tradeController.executeLimitOrder);
+
 module.exports = router;

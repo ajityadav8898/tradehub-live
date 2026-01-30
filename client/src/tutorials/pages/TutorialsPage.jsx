@@ -17,6 +17,8 @@ const PageContainer = styled.div`
     /* Global color for the page background */
 `;
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 const Content = styled.div`
     padding: 20px;
     max-width: 90vw; /* Centers and constrains content */ 

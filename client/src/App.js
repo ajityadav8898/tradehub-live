@@ -17,6 +17,7 @@ import PaperTradePage from './pages/PaperTradePage';
 
 import TradingViewGuide from "./pages/TradingViewGuide";
 import ContactPage from "./pages/ContactPage";
+import DashboardPage from './pages/DashboardPage';
 
 function App() {
     return (
@@ -34,13 +35,13 @@ function App() {
                 <Route path="/paper-trade" element={<PaperTradePage />} />
                 <Route path="/contact" element={<ContactPage />} />
 
+
                 {/* USER PROTECTED ROUTES */}
                 <Route
                     path="/dashboard"
                     element={
                         <PrivateRoute>
-                            {/* Placeholder for the user dashboard component */}
-                            <h1>User Dashboard</h1>
+                            <DashboardPage />
                         </PrivateRoute>
                     }
                 />

@@ -4,10 +4,10 @@ import axios from 'axios';
 import { decodeTokenPayload } from '../utils/authUtils';
 import useLoadCss from '../utils/useLoadCss';
 
-const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5001/api') + '/auth';
+const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api') + '/auth';
 
 const LoginPage = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate(); // Removed unused hook
     useLoadCss('auth-style.css');
 
     // State to manage form inputs
@@ -70,8 +70,10 @@ const LoginPage = () => {
 
 
     // --- API Call: Login (CRITICAL FIX APPLIED HERE) ---
+    // --- API Call: Login ---
     const handleLogin = async (e) => {
         e.preventDefault();
+        console.log("Attempting Login to:", API_BASE_URL); // Debug Log
         try {
             const response = await axios.post(`${API_BASE_URL}/login`, {
                 email: loginEmail,
@@ -83,10 +85,6 @@ const LoginPage = () => {
             const tokenPayload = decodeTokenPayload(response.data.token);
             const userRole = tokenPayload.user.role;
 
-            // FIX: Use window.location.replace to force a full browser refresh.
-            // This is the most reliable way to force the entire React app 
-            // and the AuthContext to re-read the token and hydrate the state correctly,
-            // eliminating the need for a manual reload.
             if (userRole === "admin") {
                 window.location.replace('/admin');
             } else {
@@ -94,8 +92,9 @@ const LoginPage = () => {
             }
 
         } catch (error) {
-            console.error("Login Error:", error.response?.data?.msg || error.message);
-            alert(error.response?.data?.msg || "Login failed");
+            console.error("Login Error:", error);
+            const errMsg = error.response?.data?.message || error.message || "Login failed";
+            alert(`Login Error: ${errMsg}\n(Check Console for details)`);
         }
     };
 
@@ -107,6 +106,7 @@ const LoginPage = () => {
             return;
         }
 
+        console.log("Attempting Signup to:", API_BASE_URL); // Debug Log
         try {
             await axios.post(`${API_BASE_URL}/register`, {
                 username: signupUsername,
@@ -116,8 +116,9 @@ const LoginPage = () => {
             alert('Signup Successful. Please log in.');
             toggle();
         } catch (error) {
-            console.error("Signup Error:", error.response?.data?.msg || error.message);
-            alert(error.response?.data?.msg || "Signup failed");
+            console.error("Signup Error:", error);
+            const errMsg = error.response?.data?.message || error.message || "Signup failed";
+            alert(`Signup Error: ${errMsg}\nTarget API: ${API_BASE_URL}`);
         }
     };
 

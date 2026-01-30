@@ -4,7 +4,9 @@ const UserActivity = require("../models/UserActivity");
 // ✅ GET all user login sessions
 exports.getAllSessions = async (req, res) => {
     try {
-        const sessions = await Session.find().sort({ loginTime: -1 });
+        const sessions = await Session.find()
+            .populate("userId", "username email") // Populate username and email from User model
+            .sort({ loginTime: -1 });
         res.json(sessions);
     } catch (error) {
         console.error("Error fetching sessions:", error);

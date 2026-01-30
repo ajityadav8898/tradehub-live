@@ -7,14 +7,14 @@ import axios from "axios";
 import "./UserChatbox.css";
 
 // Connect to the unified backend
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5001";
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:5000";
 const socket = io(SOCKET_URL);
 
 const UserChatbox = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
-    // Dark mode is default false for this theme
-    const [darkMode, setDarkMode] = useState(false);
+    // Dark mode is default true for this theme
+    const [darkMode, setDarkMode] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null); // Ref for file upload

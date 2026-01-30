@@ -7,7 +7,7 @@ const UserEbooks = () => {
   const [ebooks, setEbooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
+  const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
 
   useEffect(() => {
     setIsLoading(true);
@@ -31,17 +31,6 @@ const UserEbooks = () => {
   const filteredEbooks = ebooks.filter(ebook =>
     ebook.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleView = (pdfLink) => {
-    console.log("Attempting to View link:", pdfLink);
-
-    if (!pdfLink || !pdfLink.startsWith('http')) {
-      alert("Error: PDF link is invalid or missing. Please contact administration.");
-      return;
-    }
-    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfLink)}&embedded=true`;
-    window.open(viewerUrl, "_blank");
-  };
 
   const handleDownload = (pdfLink, title) => {
     console.log("Attempting to Download link:", pdfLink);
@@ -107,9 +96,14 @@ const UserEbooks = () => {
               <img src={ebook.thumbnail} alt={ebook.title} className="ebook-img" />
               <h2>{ebook.title}</h2>
               <div className="button-container">
-                <button className="view-btn" onClick={() => handleView(ebook.pdf)}>
+                <a
+                  className="view-btn"
+                  href={`https://docs.google.com/viewer?url=${encodeURIComponent(ebook.pdf)}&embedded=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <i className="bi bi-eye"></i> View
-                </button>
+                </a>
                 <button className="download-btn" onClick={() => handleDownload(ebook.pdf, ebook.title)}>
                   <i className="bi bi-download"></i> Download
                 </button>

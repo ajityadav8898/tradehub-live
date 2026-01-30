@@ -95,36 +95,41 @@ export default function TutorialsPage() {
       id: 1,
       title: "Advanced Technical Analysis",
       category: "Analysis",
-      image: "https://images.unsplash.com/photo-1611974765270-ca12586343bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      description: "Deep dive into chart patterns, multi-timeframe analysis, and advanced indicators."
+      image: "/assets/advanced-technical-analysis.png",
+      description: "Deep dive into chart patterns, multi-timeframe analysis, and advanced indicators.",
+      link: "https://www.upsurge.club/courses/technical-analysis"
     },
     {
       id: 2,
       title: "Crypto Trading 101",
       category: "Crypto",
       image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      description: "Master the basics of cryptocurrency trading, wallets, and blockchain technology."
+      description: "Master the basics of cryptocurrency trading, wallets, and blockchain technology.",
+      link: "https://www.udemy.com/course/the-complete-cryptocurrency-trading-course/"
     },
     {
       id: 3,
       title: "Forex Mastery Course",
       category: "Forex",
-      image: "https://images.unsplash.com/photo-1526304640156-50364cc71565?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      description: "Learn to trade foreign currencies with confidence using proven strategies."
+      image: "/assets/forex-mastery.png",
+      description: "Learn to trade foreign currencies with confidence using proven strategies.",
+      link: "https://www.udemy.com/course/forex-trading-fundamentals-to-advanced/"
     },
     {
       id: 4,
       title: "Options Trading Strategies",
       category: "Options",
       image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      description: "Understand calls, puts, and complex option strategies for hedging and profit."
+      description: "Understand calls, puts, and complex option strategies for hedging and profit.",
+      link: "https://www.udemy.com/course/options-trading-strategies-module/"
     },
     {
       id: 5,
       title: "Swing Trading Secrets",
       category: "Strategy",
       image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      description: "Capture gains in a stock within one to four days. Ideal for part-time traders."
+      description: "Capture gains in a stock within one to four days. Ideal for part-time traders.",
+      link: "https://www.udemy.com/course/swing-trading-strategy-that-can-win-even-when-youre-wrong/"
     }
   ];
 
@@ -187,10 +192,10 @@ export default function TutorialsPage() {
               A comprehensive structured course covering everything from basic terminology to advanced algorithmic trading strategies.
               Get certified upon completion.
             </p>
-            <a href="#" className="cta-btn">Start Course Now</a>
+            <a href="https://www.udemy.com/course/learn-stock-trading-from-scratch/" target="_blank" rel="noopener noreferrer" className="cta-btn">Start Course Now</a>
           </div>
           <div className="featured-image">
-            <img src="https://images.unsplash.com/photo-1611974765270-ca12586343bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Trading Course" />
+            <img src="/assets/zero-to-hero.png" alt="Trading Course" />
           </div>
         </div>
       </div>
@@ -212,7 +217,15 @@ export default function TutorialsPage() {
                 <span className="video-category">{course.category}</span>
                 <h3>{course.title}</h3>
                 <p>{course.description}</p>
-                <button className="cta-btn" style={{ marginTop: '15px', fontSize: '0.8rem', padding: '8px 20px', cursor: 'pointer' }}>Enroll Now</button>
+                <a
+                  href={course.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cta-btn"
+                  style={{ marginTop: '15px', fontSize: '0.8rem', padding: '8px 20px', cursor: 'pointer', display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
+                >
+                  Enroll Now
+                </a>
               </div>
             </div>
           ))}

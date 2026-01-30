@@ -6,6 +6,7 @@ const portfolioSchema = new mongoose.Schema({
     instrument: { type: String, enum: ["Stock", "Index", "Option", "Future", "Equity", "Options", "Futures", "Mutual Funds"], required: true },
     quantity: { type: Number, required: true },
     averagePrice: { type: Number, required: true },
+    stopLoss: { type: Number, default: 0 },
 });
 
 // Compound index to ensure one entry per symbol+instrument per user

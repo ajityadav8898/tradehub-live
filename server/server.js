@@ -86,7 +86,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // --- 4. API ROUTING ---
 app.use("/api/auth", authRoutes);
 app.use("/api/ebooks", ebooksRoutes);
-// // app.use("/api/trade", require("./routes/tradeRoutes"));
+app.use("/api/trade", require("./routes/tradeRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
 
 // --- Import Chat Model ---

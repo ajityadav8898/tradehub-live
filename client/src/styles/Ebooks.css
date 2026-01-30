@@ -113,7 +113,9 @@ body {
   margin-top: auto;
 }
 
-button {
+button,
+.view-btn,
+.download-btn {
   cursor: pointer;
   border: none;
   font-weight: 600;
@@ -125,6 +127,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 5px;
+  text-decoration: none;
+  /* Essential for anchor tags */
 }
 
 .view-btn {

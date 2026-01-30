@@ -10,7 +10,7 @@ const AdminEbooks = () => {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [pdfLink, setPdfLink] = useState(""); // GitHub Raw Link
   const [isLoading, setIsLoading] = useState(true);
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5001/api";
+  const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
 
   const getToken = () => localStorage.getItem("token");
 
@@ -98,7 +98,8 @@ const AdminEbooks = () => {
           setEbooks(ebooks.filter((ebook) => ebook._id !== id));
           alert("Ebook deleted successfully!");
         } else {
-          alert("Failed to delete ebook.");
+          const errorData = await response.json().catch(() => ({}));
+          alert(`Failed to delete ebook: ${errorData.msg || errorData.error || response.statusText}`);
         }
       } catch (error) {
         console.error("Error deleting ebook:", error);

@@ -2,129 +2,114 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import '../styles/PaperTrade.css';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { MOCK_STOCKS, MOCK_OPTIONS, MOCK_FUTURES, MOCK_MF } from '../utils/mockMarketData';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const PaperTradePage = () => {
-  // --- State: Market Data (Mock) ---
-  const [stocks, setStocks] = useState([
-    { symbol: 'RELIANCE', type: 'Stock', price: 2950.50, margin: 0.2, history: [], change: 0 },
-    { symbol: 'TCS', type: 'Stock', price: 4200.75, margin: 0.2, history: [], change: 0 },
-    { symbol: 'HDFCBANK', type: 'Stock', price: 1650.30, margin: 0.2, history: [], change: 0 },
-    { symbol: 'INFY', type: 'Stock', price: 1850.45, margin: 0.2, history: [], change: 0 }
-  ]);
-  const [indexes, setIndexes] = useState([
-    {
-      symbol: 'NIFTY', type: 'Index', price: 25000, margin: 0.5, history: [], change: 0,
-      options: [
-        { symbol: 'NIFTY_CE_25000', type: 'Option', price: 120.45, margin: 0.5, history: [], change: 0 },
-        { symbol: 'NIFTY_PE_25000', type: 'Option', price: 100.30, margin: 0.5, history: [], change: 0 }
-      ]
-    },
-    {
-      symbol: 'BANKNIFTY', type: 'Index', price: 51000, margin: 0.5, history: [], change: 0,
-      options: [
-        { symbol: 'BANKNIFTY_CE_51000', type: 'Option', price: 200.60, margin: 0.5, history: [], change: 0 },
-        { symbol: 'BANKNIFTY_PE_51000', type: 'Option', price: 180.75, margin: 0.5, history: [], change: 0 }
-      ]
-    }
-  ]);
+  // --- State: Market Data ---
+  // Using Mock Data but initializing 'change' and 'history' dynamically
+  const initializeData = (data) => data.map(item => ({
+    ...item,
+    history: Array(20).fill(item.price), // Initial flat history
+    change: 0
+  }));
 
-  // --- State: User Data ---
-  const [virtualBalance, setVirtualBalance] = useState(1000000);
+  const [marketData, setMarketData] = useState({
+    Stock: initializeData(MOCK_STOCKS),
+    Option: initializeData(MOCK_OPTIONS),
+    Future: initializeData(MOCK_FUTURES),
+    'Mutual Fund': initializeData(MOCK_MF)
+  });
+
+  // --- State: User Data (Backend Synced) ---
+  const [virtualBalance, setVirtualBalance] = useState(0);
   const [portfolio, setPortfolio] = useState([]);
-  const [openPositions, setOpenPositions] = useState([]);
-  const [trades, setTrades] = useState([]);
+  const [tradeHistory, setTradeHistory] = useState([]);
   const [todaysProfit, setTodaysProfit] = useState(0);
 
   // --- State: UI & Forms ---
-  const [selectedSymbol, setSelectedSymbol] = useState('RELIANCE');
-  const [orderInstrument, setOrderInstrument] = useState('stock'); // stock | option
-  const [orderSymbol, setOrderSymbol] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('Stock'); // Stock | Option | Future | Mutual Fund
+  const [selectedSymbol, setSelectedSymbol] = useState(MOCK_STOCKS[0].symbol);
+
   const [orderType, setOrderType] = useState('market'); // market | limit
   const [orderPrice, setOrderPrice] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [orderAction, setOrderAction] = useState('buy'); // buy | sell
-  const [discussionText, setDiscussionText] = useState('');
-  const [discussionPosts, setDiscussionPosts] = useState([
-    { user: 'TraderX', text: 'Bullish on RELIANCE! Expecting a breakout above ₹3000 soon.', time: new Date().toLocaleTimeString() }
-  ]);
+  const [stopLoss, setStopLoss] = useState('');
+
   const [marketStatus, setMarketStatus] = useState({ isOpen: true, text: 'Open' });
 
-  // --- Refs for Chart ---
+  // --- Refs ---
   const chartRef = useRef(null);
 
-  // --- Helper: Get Market Item ---
+  // --- Helper: Get Current Item Data ---
   const getMarketItem = (symbol) => {
-    let item = stocks.find(s => s.symbol === symbol);
-    if (item) return item;
-    for (let index of indexes) {
-      if (index.symbol === symbol) return index;
-      item = index.options.find(opt => opt.symbol === symbol);
+    // Search across all categories
+    for (const category of Object.values(marketData)) {
+      const item = category.find(s => s.symbol === symbol);
       if (item) return item;
     }
     return null;
   };
 
-  // --- Effect: Simulation Loop ---
+  // --- Effect: Load User Data from Backend ---
   useEffect(() => {
-    // Initialize history
-    const initHistory = (item) => {
-      if (item.history.length === 0) item.history = Array(20).fill(item.price);
-    };
-    stocks.forEach(initHistory);
-    indexes.forEach(idx => {
-      initHistory(idx);
-      idx.options.forEach(initHistory);
-    });
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-    const interval = setInterval(() => {
-      // Update Stocks
-      setStocks(prev => prev.map(stock => {
-        const changeP = (Math.random() * 1.0 - 0.4); // Random flow
-        const newPrice = Math.max(1, stock.price * (1 + changeP / 100));
-        const newHistory = [...stock.history, newPrice].slice(-50);
-        return { ...stock, price: newPrice, history: newHistory, change: changeP };
-      }));
-
-      // Update Indexes & Options
-      setIndexes(prev => prev.map(idx => {
-        const changeP = (Math.random() * 0.8 - 0.35);
-        const newPrice = Math.max(1, idx.price * (1 + changeP / 100));
-        const newHistory = [...idx.history, newPrice].slice(-50);
-
-        const newOptions = idx.options.map(opt => {
-          const optChange = (Math.random() * 2.5 - 1.0); // Higher volatility
-          const optPrice = Math.max(1, opt.price * (1 + optChange / 100));
-          const optHistory = [...opt.history, optPrice].slice(-50);
-          return { ...opt, price: optPrice, history: optHistory, change: optChange };
+        // 1. Portfolio & Balance
+        const pRes = await fetch('http://localhost:5000/api/trade/portfolio', {
+          headers: { 'x-auth-token': token }
         });
+        const pData = await pRes.json();
+        if (pRes.ok) {
+          setVirtualBalance(pData.balance);
+          setPortfolio(pData.portfolio);
+        }
 
-        return { ...idx, price: newPrice, history: newHistory, change: changeP, options: newOptions };
-      }));
+        // 2. History
+        const hRes = await fetch('http://localhost:5000/api/trade/history', {
+          headers: { 'x-auth-token': token }
+        });
+        const hData = await hRes.json();
+        if (hRes.ok) {
+          setTradeHistory(hData);
+          // Calculate rudimentary "Today's P&L" based on closed trades from today? 
+          // For now, easier to calculate Realized P&L from history + Unrealized from Portfolio
+        }
+      } catch (err) {
+        console.error("Failed to load user data", err);
+      }
+    };
+    fetchUserData();
+  }, []);
 
-      // Check Open Positions (Limit Orders / Stop Loss)
-      checkPositions();
-
-    }, 3000);
+  // --- Effect: Simulation Loop (Updates Prices) ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMarketData(prevData => {
+        const newData = { ...prevData };
+        Object.keys(newData).forEach(key => {
+          newData[key] = newData[key].map(item => {
+            // Reduced Volatility for realistic movements (Single digits/Tens)
+            const volatility = key === 'Option' ? 0.3 : 0.05;
+            const changeP = (Math.random() * volatility * 2 - volatility);
+            const newPrice = Math.max(0.05, item.price * (1 + changeP / 100));
+            const newHistory = [...item.history, newPrice].slice(-50);
+            return { ...item, price: newPrice, history: newHistory, change: changeP };
+          });
+        });
+        return newData;
+      });
+      calculatePL(); // Recalculate P&L on price update
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []); // eslint-disable-line
@@ -133,203 +118,198 @@ const PaperTradePage = () => {
   useEffect(() => {
     const updateStatus = () => {
       const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const isOpen = (hours >= 9 && hours < 15) || (hours === 15 && minutes <= 30);
-      setMarketStatus({
-        isOpen,
-        text: isOpen ? 'Open' : 'Closed'
-      });
+      // Simple status check
+      setMarketStatus({ isOpen: true, text: 'Open' });
     };
     updateStatus();
     const timer = setInterval(updateStatus, 60000);
     return () => clearInterval(timer);
   }, []);
 
-  // --- Logic: Check Positions ---
-  const checkPositions = () => {
-    setOpenPositions(prevPositions => {
-      const remaining = [];
-      let updated = false;
-
-      prevPositions.forEach(pos => {
-        const item = getMarketItem(pos.symbol);
-        if (!item) {
-          remaining.push(pos);
-          return;
-        }
-        const current = item.price;
-        let execute = false;
-
-        // Limit Order Check
-        if (pos.orderType === 'limit') {
-          if (pos.action === 'buy' && current <= pos.entryPrice) execute = true;
-          if (pos.action === 'sell' && current >= pos.entryPrice) execute = true;
-        }
-
-        // Stop Loss Check (Simplified for market orders)
-        if (pos.orderType === 'market' && pos.stopLoss) {
-          if (pos.action === 'buy' && current <= pos.stopLoss) execute = true; // Sell to stop loss
-          // Logic for short selling stop loss would go here
-        }
-
-        if (execute && pos.orderType === 'limit') { // Only auto-execute limits for now
-          executeTradeValues(pos, current);
-          updated = true;
-        } else {
-          remaining.push(pos);
-        }
-      });
-
-      return updated ? remaining : prevPositions;
-    });
-  };
-
-  const executeTradeValues = (pos, price) => {
-    // This is primarily for limit order execution logic backend simulation
-    const total = price * pos.quantity;
-    const pl = pos.action === 'buy' ?
-      (price - pos.entryPrice) * pos.quantity :
-      (pos.entryPrice - price) * pos.quantity;
-
-    if (pos.action === 'buy') {
-      // Executing a BUY LIMIT means we bought at 'price'
-      // We usually deduct balance when placing order, or here?
-      // For sim simplicity, we assumed balance deducted on placement for buy.
-
-      // Add to portfolio
-      const existing = portfolio.find(p => p.symbol === pos.symbol);
-      if (existing) {
-        const newQty = existing.quantity + pos.quantity;
-        const newAvg = ((existing.avgPrice * existing.quantity) + (price * pos.quantity)) / newQty;
-        setPortfolio(prev => prev.map(p => p.symbol === pos.symbol ? { ...p, quantity: newQty, avgPrice: newAvg } : p));
-      } else {
-        setPortfolio(prev => [...prev, { symbol: pos.symbol, type: pos.type, quantity: pos.quantity, avgPrice: price }]);
-      }
-    } else {
-      // Executing SELL LIMIT
-      setVirtualBalance(prev => prev + total);
-      setTodaysProfit(prev => prev + pl);
-      // Logic to reduce portfolio if it was covered? 
-      // Simplified: This sim mainly tracks 'positions' as independent entities until settled
-    }
-
-    setTrades(prev => [...prev, { ...pos, exitPrice: price, pl, date: new Date() }]);
+  // --- Function: Calculate P&L ---
+  const calculatePL = () => {
+    // This runs locally to update the UI "Total P&L" based on current prices
+    // Does not persist until closed.
   };
 
   // --- Handlers ---
-  const handlePlaceTrade = () => {
+  const handlePlaceTrade = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Please login to trade");
+      return;
+    }
+
     const qty = parseInt(orderQuantity);
-    const price = parseFloat(orderPrice);
-
-    if (!orderSymbol || !qty || qty <= 0) {
-      alert("Invalid Trade Parameters");
+    if (!qty || qty <= 0) {
+      alert("Invalid Quantity");
       return;
     }
 
-    const item = getMarketItem(orderSymbol);
-    if (!item) {
-      alert("Symbol not found");
-      return;
-    }
+    const item = getMarketItem(selectedSymbol);
+    if (!item) return;
 
-    const currentPrice = item.price;
-    const execPrice = orderType === 'limit' ? price : currentPrice;
-    const totalCost = execPrice * qty;
-
-    if (orderAction === 'buy') {
-      if (totalCost > virtualBalance) {
-        alert("Insufficient Funds");
-        return;
-      }
-      if (orderType === 'market') {
-        setVirtualBalance(prev => prev - totalCost);
-        // Add to Portfolio
-        setPortfolio(prev => {
-          const existing = prev.find(p => p.symbol === orderSymbol);
-          if (existing) {
-            const newQty = existing.quantity + qty;
-            const newAvg = ((existing.avgPrice * existing.quantity) + totalCost) / newQty;
-            return prev.map(p => p.symbol === orderSymbol ? { ...p, quantity: newQty, avgPrice: newAvg } : p);
-          } else {
-            return [...prev, { symbol: orderSymbol, type: orderInstrument, quantity: qty, avgPrice: execPrice }];
-          }
-        });
-      }
-    } else {
-      // Sell logic
-      const existing = portfolio.find(p => p.symbol === orderSymbol);
-      if (!existing || existing.quantity < qty) {
-        alert("Insufficient holdings to sell");
-        return;
-      }
-      if (orderType === 'market') {
-        setVirtualBalance(prev => prev + totalCost);
-        const pl = (execPrice - existing.avgPrice) * qty;
-        setTodaysProfit(prev => prev + pl);
-
-        // Update Portfolio
-        if (existing.quantity === qty) {
-          setPortfolio(prev => prev.filter(p => p.symbol !== orderSymbol));
-        } else {
-          setPortfolio(prev => prev.map(p => p.symbol === orderSymbol ? { ...p, quantity: p.quantity - qty } : p));
-        }
-      }
-    }
-
-    // Add to Open Positions (For tracking/Visuals)
-    if (orderType !== 'market' || orderAction === 'buy') {
-      // We keep buy orders in open positions mainly for tracking gain/loss in that specific 'trade'
-      // For sell market, it's done immediately usually. 
-    }
-
-    // Simplified: Add everything to 'Open Positions' log if it's active
-    setOpenPositions(prev => [
-      ...prev,
-      {
-        symbol: orderSymbol,
-        type: orderInstrument,
-        orderType,
-        action: orderAction,
-        quantity: qty,
-        entryPrice: execPrice,
-        stopLoss: null
-      }
-    ]);
-
-    alert("Order Placed!");
-  };
-
-  const handleLiquidity = (pos, index) => {
-    // Manually close/sell a specific position from the list
-    const item = getMarketItem(pos.symbol);
-    const current = item.price;
-    const total = current * pos.quantity;
-    const pl = (current - pos.entryPrice) * pos.quantity; // Assuming Buy position
-
-    if (pos.action === 'buy') {
-      setVirtualBalance(prev => prev + total);
-      setTodaysProfit(prev => prev + pl);
-
-      // Reduce portfolio
-      setPortfolio(prev => {
-        const existing = prev.find(p => p.symbol === pos.symbol);
-        if (existing) {
-          if (existing.quantity <= pos.quantity) return prev.filter(p => p.symbol !== pos.symbol);
-          return prev.map(p => p.symbol === pos.symbol ? { ...p, quantity: p.quantity - pos.quantity } : p);
-        }
-        return prev;
+    try {
+      const res = await fetch('http://localhost:5000/api/trade/place', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
+        body: JSON.stringify({
+          symbol: selectedSymbol,
+          instrument: item.type,
+          action: orderAction.toUpperCase(),
+          quantity: qty,
+          orderType: orderType.toUpperCase(),
+          limitPrice: orderType === 'limit' ? orderPrice : item.price, // Sending current price for backend sim
+          price: item.price, // Explicitly sending price for demo accuracy
+          stopLoss: stopLoss
+        })
       });
-    }
 
-    // Remove from open positions
-    setOpenPositions(prev => prev.filter((_, i) => i !== index));
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setVirtualBalance(data.balance);
+
+        // Refresh Portfolio & History
+        const pRes = await fetch('http://localhost:5000/api/trade/portfolio', { headers: { 'x-auth-token': token } });
+        if (pRes.ok) setPortfolio((await pRes.json()).portfolio);
+
+        const hRes = await fetch('http://localhost:5000/api/trade/history', { headers: { 'x-auth-token': token } });
+        if (hRes.ok) setTradeHistory(await hRes.json());
+
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert(`Trade Failed: ${err.message}`);
+    }
   };
 
-  const handleDiscussionPost = () => {
-    if (!discussionText.trim()) return;
-    setDiscussionPosts(prev => [{ user: 'You', text: discussionText, time: new Date().toLocaleTimeString() }, ...prev]);
-    setDiscussionText('');
+  const handleResetAccount = async () => {
+    if (!window.confirm("Are you sure you want to RESET your virtual account? This will clear all portfolio, history and reset balance to ₹10,00,000.")) return;
+
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('http://localhost:5000/api/trade/reset', {
+        method: 'DELETE',
+        headers: { 'x-auth-token': token }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setVirtualBalance(data.balance);
+        setPortfolio([]);
+        setTradeHistory([]);
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Reset failed");
+    }
+  };
+
+  const handleUpdateSL = async (symbol, val) => {
+    if (!val) return;
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('http://localhost:5000/api/trade/positions/stoploss', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+        body: JSON.stringify({ symbol, stopLoss: val })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // alert("SL Updated");
+        // Update local state without full refresh for speed
+        setPortfolio(prev => prev.map(p => p.symbol === symbol ? { ...p, stopLoss: Number(val) } : p));
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSquareOff = async (symbol, qty, currentType) => {
+    // Reverse the trade
+    const token = localStorage.getItem('token');
+    const item = getMarketItem(symbol);
+    if (!item || !token) return;
+
+    // Logic: If I have quantity, Square Off means SELL.
+    // Wait, Portfolio doesn't explicitly say "Long/Short". 
+    // Usually standard portfolio is Long (Buy).
+    // So Square Off = SELL.
+    // If backend supported Short Selling, we'd need to know position side.
+    // Assuming Long Only for basics, or checking if we can sell.
+
+    // Auto-fill form or just execute? executing directly is better UX.
+    if (window.confirm(`Square off ${symbol}? This will sell ${qty} units at market price.`)) {
+      try {
+        const res = await fetch('http://localhost:5000/api/trade/place', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+          body: JSON.stringify({
+            symbol: symbol,
+            instrument: item.type,
+            action: 'SELL',
+            quantity: qty,
+            orderType: 'MARKET',
+            price: item.price
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert("Square Off Successful");
+          setVirtualBalance(data.balance);
+          // Refresh
+          const pRes = await fetch('http://localhost:5000/api/trade/portfolio', { headers: { 'x-auth-token': token } });
+          if (pRes.ok) setPortfolio((await pRes.json()).portfolio);
+          const hRes = await fetch('http://localhost:5000/api/trade/history', { headers: { 'x-auth-token': token } });
+          if (hRes.ok) setTradeHistory(await hRes.json());
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert("Error squaring off");
+      }
+    }
+  };
+
+
+
+  const handleTriggerStopLoss = async (symbol, qty, instrument, slPrice, actionType) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('http://localhost:5000/api/trade/place', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+        body: JSON.stringify({
+          symbol: symbol,
+          instrument: instrument || 'Stock',
+          action: actionType, // Dynamic Action
+          quantity: Math.abs(qty), // Convert to positive for order
+          orderType: 'MARKET',
+          price: slPrice
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setVirtualBalance(data.balance);
+        const pRes = await fetch('http://localhost:5000/api/trade/portfolio', { headers: { 'x-auth-token': token } });
+        if (pRes.ok) setPortfolio((await pRes.json()).portfolio);
+        const hRes = await fetch('http://localhost:5000/api/trade/history', { headers: { 'x-auth-token': token } });
+        if (hRes.ok) setTradeHistory(await hRes.json());
+      }
+    } catch (err) {
+      console.error("SL Execution Failed", err);
+    }
   };
 
   // --- Chart Data ---
@@ -341,8 +321,8 @@ const PaperTradePage = () => {
       datasets: [{
         label: `${selectedSymbol} Price (₹)`,
         data: item.history,
-        borderColor: '#0adfaa',
-        backgroundColor: 'rgba(10, 223, 170, 0.1)',
+        borderColor: item.change >= 0 ? '#0adfaa' : '#ff4444',
+        backgroundColor: item.change >= 0 ? 'rgba(10, 223, 170, 0.1)' : 'rgba(255, 68, 68, 0.1)',
         fill: true,
         tension: 0.3,
         pointRadius: 0
@@ -350,229 +330,330 @@ const PaperTradePage = () => {
     };
   };
 
-  // --- Portfolio Summary Calculations ---
-  const portfolioValue = portfolio.reduce((acc, item) => {
-    const mItem = getMarketItem(item.symbol);
-    return acc + (mItem ? mItem.price * item.quantity : 0);
+  // --- NEW: Stop Loss Monitoring Effect (Moved Here) ---
+  // --- NEW: Stop Loss Monitoring Effect (Moved Here) ---
+  // --- Derived State: Pending Orders ---
+  const pendingOrders = tradeHistory ? tradeHistory.filter(t => t.status === 'PENDING') : [];
+
+  const handleExecuteLimitOrder = async (tradeId, currentPrice) => {
+    const token = localStorage.getItem('token');
+    try {
+      // Play sound or alert
+      // console.log("Executing Limit Order", tradeId);
+      const res = await fetch('http://localhost:5000/api/trade/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+        body: JSON.stringify({ tradeId, executionPrice: currentPrice })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        alert(`LIMIT ORDER EXECUTED! ${data.trade.symbol} @ ₹${data.trade.price.toFixed(2)}`);
+        setVirtualBalance(data.balance);
+
+        // Refresh Data
+        const pRes = await fetch('http://localhost:5000/api/trade/portfolio', { headers: { 'x-auth-token': token } });
+        if (pRes.ok) setPortfolio((await pRes.json()).portfolio);
+        const hRes = await fetch('http://localhost:5000/api/trade/history', { headers: { 'x-auth-token': token } });
+        if (hRes.ok) setTradeHistory(await hRes.json());
+      }
+    } catch (err) {
+      console.error("Limit Execution Switch Failed", err);
+    }
+  };
+
+
+  // --- NEW: Stop Loss & Limit Order Monitoring Effect ---
+  useEffect(() => {
+    // 1. Monitor STOP LOSS
+    if (handleTriggerStopLoss) {
+      portfolio.forEach(pos => {
+        const slPrice = Number(pos.stopLoss);
+        if (slPrice && slPrice > 0) {
+          const item = getMarketItem(pos.symbol);
+          if (item) {
+            const currentPrice = Number(item.price);
+            // DIRECTIONAL LOGIC
+            if (pos.quantity > 0) {
+              // LONG POSITION: Sell if Price <= StopLoss
+              if (currentPrice <= slPrice) {
+                console.warn(`LONG SL TRIGGERED: ${pos.symbol} @ ${currentPrice} (SL: ${slPrice})`);
+                alert(`STOP LOSS TRIGGERED (Long) for ${pos.symbol} at ₹${currentPrice.toFixed(2)}! Selling to exit.`);
+                handleTriggerStopLoss(pos.symbol, pos.quantity, item.type, slPrice, 'SELL');
+              }
+            } else if (pos.quantity < 0) {
+              // SHORT POSITION: Buy if Price >= StopLoss
+              if (currentPrice >= slPrice) {
+                console.warn(`SHORT SL TRIGGERED: ${pos.symbol} @ ${currentPrice} (SL: ${slPrice})`);
+                alert(`STOP LOSS TRIGGERED (Short) for ${pos.symbol} at ₹${currentPrice.toFixed(2)}! Buying to cover.`);
+                handleTriggerStopLoss(pos.symbol, pos.quantity, item.type, slPrice, 'BUY');
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Monitor LIMIT ORDERS (Pending)
+    if (pendingOrders.length > 0) {
+      pendingOrders.forEach(order => {
+        const item = getMarketItem(order.symbol);
+        if (item) {
+          const currentPrice = Number(item.price);
+          const limitPrice = Number(order.price);
+
+          if (order.action === 'BUY') {
+            // Buy Limit: Trigger if Price <= Limit Price
+            if (currentPrice <= limitPrice) {
+              console.log(`BUY LIMIT HIT: ${order.symbol} @ ${currentPrice} (Limit: ${limitPrice})`);
+              handleExecuteLimitOrder(order._id, currentPrice);
+            }
+          } else if (order.action === 'SELL') {
+            // Sell Limit: Trigger if Price >= Limit Price
+            if (currentPrice >= limitPrice) {
+              console.log(`SELL LIMIT HIT: ${order.symbol} @ ${currentPrice} (Limit: ${limitPrice})`);
+              handleExecuteLimitOrder(order._id, currentPrice);
+            }
+          }
+        }
+      });
+    }
+
+  }, [marketData, portfolio, tradeHistory]); // Added tradeHistory to dependency
+
+  // --- Derived Calculations ---
+
+
+  const currentPortfolioValue = portfolio.reduce((acc, p) => {
+    const item = getMarketItem(p.symbol);
+    return acc + (item ? item.price * p.quantity : p.averagePrice * p.quantity);
   }, 0);
-  const totalPL = portfolio.reduce((acc, item) => {
-    const mItem = getMarketItem(item.symbol);
-    return acc + (mItem ? (mItem.price - item.avgPrice) * item.quantity : 0);
-  }, 0);
+
+  const totalInvested = portfolio.reduce((acc, p) => acc + (p.averagePrice * p.quantity), 0);
+  const totalPL = currentPortfolioValue - totalInvested;
+
+  const filteredList = marketData[activeTab].filter(item =>
+    item.symbol.includes(searchQuery.toUpperCase()) || item.name.toUpperCase().includes(searchQuery.toUpperCase())
+  );
 
   return (
     <div className="pt-page-container">
       <Navbar />
       <div className="pt-main-content">
 
-        {/* HERO / HEADER */}
+        {/* HEADER */}
         <header className="pt-header">
           <div>
-            <h1>TraceHub Simulator</h1>
-            <p>Master the market with ₹10,00,000 virtual cash.</p>
+            <h1>TradeHub Pro</h1>
+            <p>Advanced Trading Terminal</p>
           </div>
-          <div className="pt-market-status">
-            Market: <span className={marketStatus.isOpen ? 'text-green' : 'text-red'}>{marketStatus.text}</span>
+          <div className="pt-header-actions">
+            <button className="pt-btn-reset" onClick={handleResetAccount}>
+              Reset Account
+            </button>
+            <div className="pt-market-status">
+              MARKET: <span className="text-green">OPEN</span>
+            </div>
           </div>
         </header>
 
         <div className="pt-grid-layout">
 
-          {/* LEFT COLUMN: WATCHLIST & SUMMARY */}
+          {/* SIDEBAR: SEARCH & LIST */}
           <aside className="pt-sidebar">
             <div className="pt-card pt-summary">
-              <h3>Portfolio Summary</h3>
+              <h3>Wallet</h3>
               <div className="pt-stat-row">
-                <span>Balance</span>
+                <span>Available Margin</span>
                 <span className="pt-val text-green">₹{virtualBalance.toFixed(2)}</span>
               </div>
               <div className="pt-stat-row">
-                <span>Portfolio Value</span>
-                <span className="pt-val text-blue">₹{portfolioValue.toFixed(2)}</span>
+                <span>Invested</span>
+                <span className="pt-val">₹{totalInvested.toFixed(2)}</span>
               </div>
               <div className="pt-stat-row">
-                <span>Total P&L</span>
-                <span className={`pt-val ${totalPL >= 0 ? 'text-green' : 'text-red'}`}>₹{totalPL.toFixed(2)}</span>
-              </div>
-              <div className="pt-stat-row">
-                <span>Today's P&L</span>
-                <span className={`pt-val ${todaysProfit >= 0 ? 'text-green' : 'text-red'}`}>₹{todaysProfit.toFixed(2)}</span>
+                <span>Total Profit and Loss</span>
+                <span className={`pt-val ${totalPL >= 0 ? 'text-green' : 'text-red'}`}>
+                  {totalPL >= 0 ? '+' : ''}₹{totalPL.toFixed(2)}
+                </span>
               </div>
             </div>
 
             <div className="pt-card pt-watchlist">
-              <h3>Stocks</h3>
-              <div className="pt-list">
-                {stocks.map(s => (
-                  <div key={s.symbol} className="pt-item" onClick={() => { setSelectedSymbol(s.symbol); setOrderSymbol(s.symbol); }}>
-                    <div className="pt-item-name">{s.symbol}</div>
-                    <div className={`pt-item-price ${s.change >= 0 ? 'text-green' : 'text-red'}`}>
-                      ₹{s.price.toFixed(2)}
-                    </div>
-                  </div>
+              <div className="pt-search-box">
+                <input
+                  type="text"
+                  placeholder="Search Stocks, F&O..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="pt-tabs">
+                {['Stock', 'Option', 'Future', 'Mutual Fund'].map(tab => (
+                  <button
+                    key={tab}
+                    className={activeTab === tab ? 'active' : ''}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab === 'Mutual Fund' ? 'MFs' : tab}
+                  </button>
                 ))}
               </div>
-              <h3 className="mt-4">Indexes & Options</h3>
               <div className="pt-list">
-                {indexes.map(idx => (
-                  <React.Fragment key={idx.symbol}>
-                    <div className="pt-item index-item" onClick={() => { setSelectedSymbol(idx.symbol); setOrderSymbol(idx.symbol); }}>
-                      <div className="pt-item-name">{idx.symbol}</div>
-                      <div className={`pt-item-price ${idx.change >= 0 ? 'text-green' : 'text-red'}`}>
-                        ₹{idx.price.toFixed(2)}
-                      </div>
+                {filteredList.map(item => (
+                  <div
+                    key={item.symbol}
+                    onClick={() => { setSelectedSymbol(item.symbol); }}
+                  >
+                    <div className="pt-item-left">
+                      <div className="pt-item-name">{item.symbol}</div>
+                      <small>{item.name}</small>
                     </div>
-                    {idx.options.map(opt => (
-                      <div key={opt.symbol} className="pt-item sub-item" onClick={() => { setSelectedSymbol(opt.symbol); setOrderSymbol(opt.symbol); }}>
-                        <div className="pt-item-name">{opt.symbol}</div>
-                        <div className={`pt-item-price ${opt.change >= 0 ? 'text-green' : 'text-red'}`}>
-                          ₹{opt.price.toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
-                  </React.Fragment>
+                    <div className={`pt-item-price ${item.change >= 0 ? 'text-green' : 'text-red'}`}>
+                      ₹{item.price.toFixed(2)}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           </aside>
 
-          {/* CENTER: CHART & POSITIONS */}
+          {/* MAIN: CHART & POSITIONS */}
           <main className="pt-center">
+            {/* CHART */}
             <div className="pt-card pt-chart-section">
               <div className="pt-chart-header">
                 <h2>{selectedSymbol}</h2>
                 <span className="pt-price-lg">₹{getMarketItem(selectedSymbol)?.price.toFixed(2)}</span>
               </div>
               <div className="pt-chart-canvas">
-                <Line
-                  ref={chartRef}
-                  data={chartData()}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                      x: { display: false },
-                      y: {
-                        grid: { color: '#333' },
-                        ticks: { color: '#888' }
-                      }
-                    }
-                  }}
-                />
+                <Line ref={chartRef} data={chartData()} options={{
+                  responsive: true, maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: { x: { display: false }, y: { grid: { color: '#333' } } }
+                }} />
               </div>
             </div>
 
+            {/* MANAGE TRADES / POSITIONS */}
             <div className="pt-card pt-bottom-panel">
-              <h3>Active Positions & Portfolio</h3>
+              <h3>Active Positions (Portfolio)</h3>
               <div className="pt-table-container">
                 <table className="pt-table">
                   <thead>
                     <tr>
                       <th>Symbol</th>
                       <th>Qty</th>
-                      <th>Avg</th>
+                      <th>Avg. Price</th>
                       <th>LTP</th>
                       <th>P&L</th>
+                      <th>Stop Loss</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {portfolio.map((pos, i) => {
                       const item = getMarketItem(pos.symbol);
-                      const ltp = item ? item.price : 0;
-                      const pl = (ltp - pos.avgPrice) * pos.quantity;
+                      const ltp = item ? item.price : pos.averagePrice;
+                      const pl = (ltp - pos.averagePrice) * pos.quantity;
+
                       return (
                         <tr key={i}>
                           <td>{pos.symbol}</td>
                           <td>{pos.quantity}</td>
-                          <td>{pos.avgPrice.toFixed(2)}</td>
+                          <td>{pos.averagePrice.toFixed(2)}</td>
                           <td>{ltp.toFixed(2)}</td>
                           <td className={pl >= 0 ? 'text-green' : 'text-red'}>{pl.toFixed(2)}</td>
                           <td>
-                            <button className="pt-btn-sm red" onClick={() => {
-                              // Find corresponding open position approximation or sell all
-                              // Creating a synthetic pos object for handleLiquidity
-                              handleLiquidity({ ...pos, action: 'buy', entryPrice: pos.avgPrice }, -1) // -1 index hack for portfolio only
-                            }}>Sell</button>
+                            <div className="pt-sl-update">
+                              {pos.stopLoss > 0 ? (
+                                <span className="pt-sl-val" onClick={() => {
+                                  const val = prompt("Enter new Stop Loss Price:", pos.stopLoss);
+                                  if (val !== null) handleUpdateSL(pos.symbol, val);
+                                }}>
+                                  {pos.stopLoss} <small>✎</small>
+                                </span>
+                              ) : (
+                                <button className="pt-btn-sm outline" onClick={() => {
+                                  const val = prompt("Enter Stop Loss Price:");
+                                  if (val !== null) handleUpdateSL(pos.symbol, val);
+                                }}>
+                                  Set SL
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <button className="pt-btn-sm red" onClick={() => handleSquareOff(pos.symbol, pos.quantity)}>
+                              Square Off
+                            </button>
                           </td>
                         </tr>
                       );
                     })}
-                    {portfolio.length === 0 && <tr><td colSpan="6" className="text-center">No active holdings</td></tr>}
+                    {portfolio.length === 0 && <tr><td colSpan="7" className="text-center">No active positions</td></tr>}
                   </tbody>
                 </table>
               </div>
             </div>
           </main>
 
-          {/* RIGHT: ORDER FORM & DISCUSSION */}
+          {/* RIGHT: ORDER ENTRY */}
           <aside className="pt-sidebar-right">
             <div className="pt-card pt-order-form">
               <h3>Place Order</h3>
-              <div className="pt-form-group">
-                <input
-                  type="text"
-                  placeholder="Symbol"
-                  value={orderSymbol}
-                  onChange={(e) => setOrderSymbol(e.target.value.toUpperCase())}
-                />
-              </div>
+              <div className="pt-symbol-display">{selectedSymbol}</div>
+
               <div className="pt-form-row">
+                <button className={`pt-tab-btn ${orderAction === 'buy' ? 'active-buy' : ''}`} onClick={() => setOrderAction('buy')}>BUY</button>
+                <button className={`pt-tab-btn ${orderAction === 'sell' ? 'active-sell' : ''}`} onClick={() => setOrderAction('sell')}>SELL</button>
+              </div>
+
+              <div className="pt-form-group">
+                <label>Quantity</label>
+                <input type="number" value={orderQuantity} onChange={(e) => setOrderQuantity(e.target.value)} />
+              </div>
+
+              <div className="pt-form-group">
+                <label>Order Type</label>
                 <select value={orderType} onChange={(e) => setOrderType(e.target.value)}>
                   <option value="market">Market</option>
                   <option value="limit">Limit</option>
                 </select>
-                <select value={orderAction} onChange={(e) => setOrderAction(e.target.value)} className={orderAction === 'buy' ? 'bg-green' : 'bg-red'}>
-                  <option value="buy">BUY</option>
-                  <option value="sell">SELL</option>
-                </select>
               </div>
-              <div className="pt-form-group">
-                <input
-                  type="number"
-                  placeholder="Quantity"
-                  value={orderQuantity}
-                  onChange={(e) => setOrderQuantity(e.target.value)}
-                />
-              </div>
+
               {orderType === 'limit' && (
                 <div className="pt-form-group">
-                  <input
-                    type="number"
-                    placeholder="Limit Price"
-                    value={orderPrice}
-                    onChange={(e) => setOrderPrice(e.target.value)}
-                  />
+                  <label>Limit Price</label>
+                  <input type="number" value={orderPrice} onChange={(e) => setOrderPrice(e.target.value)} />
                 </div>
               )}
+
+              <div className="pt-form-group">
+                <label>Stop Loss (Optional)</label>
+                <input type="number" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} placeholder="0.00" />
+              </div>
+
+              <div className="pt-order-summary">
+                <p>Est. Margin: ₹{((getMarketItem(selectedSymbol)?.price || 0) * (orderQuantity || 0)).toFixed(2)}</p>
+              </div>
+
               <button className={`pt-btn-action ${orderAction}`} onClick={handlePlaceTrade}>
-                {orderAction.toUpperCase()} {orderSymbol}
+                {orderAction.toUpperCase()}
               </button>
             </div>
 
-            <div className="pt-card pt-discussion">
-              <h3>Community Chat</h3>
-              <div className="pt-feed">
-                {discussionPosts.map((post, i) => (
-                  <div key={i} className="pt-post">
-                    <div className="pt-post-head">
-                      <span className="user">{post.user}</span>
-                      <span className="time">{post.time}</span>
-                    </div>
-                    <div className="pt-post-text">{post.text}</div>
+            {/* TRADE HISTORY MINI */}
+            <div className="pt-card pt-mini-history">
+              <h3>Recent History</h3>
+              <div className="pt-mini-list">
+                {tradeHistory.slice(0, 5).map((t, i) => (
+                  <div key={i} className="pt-mini-item">
+                    <span className={t.action === 'BUY' ? 'text-green' : 'text-red'}>{t.action}</span>
+                    <span>{t.symbol}</span>
+                    <span>{t.quantity} @ {t.price.toFixed(1)}</span>
                   </div>
                 ))}
-              </div>
-              <div className="pt-chat-input">
-                <input
-                  type="text"
-                  placeholder="Say something..."
-                  value={discussionText}
-                  onChange={(e) => setDiscussionText(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleDiscussionPost()}
-                />
-                <button onClick={handleDiscussionPost}>Send</button>
               </div>
             </div>
           </aside>

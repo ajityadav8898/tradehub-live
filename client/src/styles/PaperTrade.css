@@ -64,8 +64,97 @@
 
 @media (max-width: 1200px) {
   .pt-grid-layout {
+    grid-template-columns: 280px 1fr;
+  }
+
+  .pt-sidebar-right {
+    display: none;
+    /* Simplification: Move Order Form to Modal or stack below? For now stacking below */
+  }
+
+  /* Correction: Let's stack them vertically for mobile/tablet */
+  .pt-grid-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .pt-page-container {
+    padding-top: 70px;
+  }
+
+  .pt-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .pt-header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pt-grid-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pt-chart-canvas {
+    height: 300px;
+  }
+}
+
+/* Animations & Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pt-bg-root);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.pt-item {
+  transition: all 0.2s ease;
+}
+
+.pt-item:hover {
+  transform: translateX(5px);
+  background: #1f2937;
+}
+
+.pt-btn-reset {
+  background: transparent;
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  padding: 6px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+
+.pt-btn-reset:hover {
+  background: #ff4d4d;
+  color: white;
+}
+
+.pt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 /* Cards */
@@ -123,7 +212,85 @@
 
 .pt-item-price {
   font-family: 'Roboto Mono', monospace;
+  font-weight: bold;
 }
+
+/* Cleaner List Styles */
+.pt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* Subtle separator */
+  border-radius: 4px;
+  /* Slight round, not fully rounded */
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pt-item:hover {
+  background: var(--pt-hover);
+}
+
+.pt-item-name {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.pt-item-left small {
+  color: #888;
+  font-size: 0.7rem;
+}
+
+.pt-sl-input {
+  width: 80px;
+  padding: 5px;
+  background: #111;
+  border: 1px solid #444;
+  color: white;
+  border-radius: 4px;
+  font-family: 'Roboto Mono';
+  text-align: center;
+}
+
+.pt-sl-update {
+  display: flex;
+  justify-content: center;
+}
+
+.pt-btn-sm.outline {
+  background: transparent;
+  border: 1px solid var(--pt-accent);
+  color: var(--pt-accent);
+}
+
+.pt-btn-sm.outline:hover {
+  background: rgba(10, 223, 170, 0.1);
+}
+
+.pt-sl-val {
+  cursor: pointer;
+  color: #ddd;
+  font-family: 'Roboto Mono', monospace;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.pt-sl-val:hover {
+  border-color: #555;
+  background: #222;
+}
+
+.pt-sl-val small {
+  color: #888;
+  margin-left: 4px;
+  font-size: 0.8em;
+}
+
 
 /* Center */
 .pt-chart-header {
@@ -203,13 +370,20 @@
   margin-bottom: 15px;
 }
 
-.pt-form-row select {
+.pt-form-row select,
+.pt-form-group select {
   flex: 1;
   padding: 10px;
   background: var(--pt-bg-input);
   border: 1px solid var(--pt-border);
   color: white;
   border-radius: 6px;
+  width: 100%;
+}
+
+.pt-form-group select option {
+  background: var(--pt-bg-panel);
+  color: white;
 }
 
 .pt-btn-action {
@@ -298,4 +472,114 @@
 
 .text-blue {
   color: var(--pt-blue);
+}
+
+/* --- New UI Elements (Search, Tabs, Etc) --- */
+.pt-search-box input {
+  width: 100%;
+  padding: 12px;
+  background: var(--pt-bg-input);
+  border: 1px solid var(--pt-border);
+  border-radius: 6px;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.pt-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.pt-tabs button {
+  background: var(--pt-bg-panel);
+  border: 1px solid var(--pt-border);
+  color: var(--pt-text-dim);
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.pt-tabs button.active {
+  background: var(--pt-blue);
+  color: white;
+  border-color: var(--pt-blue);
+}
+
+.pt-item-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.pt-item-left small {
+  color: var(--pt-text-dim);
+  font-size: 0.75rem;
+}
+
+.pt-item.active {
+  background: #1e3a8a33;
+  border-left: 3px solid var(--pt-blue);
+}
+
+.pt-symbol-display {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.pt-tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--pt-bg-input);
+  border: 1px solid var(--pt-border);
+  color: var(--pt-text-dim);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pt-tab-btn.active-buy {
+  background: rgba(10, 223, 170, 0.2);
+  color: var(--pt-green);
+  border-color: var(--pt-green);
+}
+
+.pt-tab-btn.active-sell {
+  background: rgba(255, 77, 77, 0.2);
+  color: var(--pt-red);
+  border-color: var(--pt-red);
+}
+
+.pt-order-summary {
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: var(--pt-text-dim);
+  text-align: center;
+}
+
+.pt-mini-history {
+  margin-top: 20px;
+}
+
+.pt-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pt-mini-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 8px;
+  background: var(--pt-bg-input);
+  border-radius: 4px;
 }

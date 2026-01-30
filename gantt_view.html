@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradehub Gantt Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+gantt
+    title Tradehub Project Schedule
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+    
+    section Planning
+    Requirement Gathering       :a1, 2025-12-01, 7d
+    System Design & SRS         :after a1, 7d
+    
+    section Design
+    UI/UX Wireframing           :2025-12-15, 7d
+    Database Schema Design      :after a1, 5d
+    
+    section Development
+    Frontend Setup (React)      :2025-12-22, 10d
+    Backend Setup (Node/Express):2025-12-22, 10d
+    Authentication Module       :2026-01-01, 7d
+    Paper Trading Engine        :2026-01-08, 14d
+    Real-time Chat Integration  :2026-01-22, 7d
+    Admin Panel                 :2026-01-25, 7d
+    
+    section Testing
+    Unit & Integration Testing  :2026-02-01, 7d
+    Bug Fixing                  :after a1, 5d
+    
+    section Deployment
+    Documentation (Report)      :2026-02-08, 5d
+    Final Deployment            :2026-02-12, 2d
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>

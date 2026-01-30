@@ -146,13 +146,12 @@ const HomePage = () => {
 
                 {/* Founder Section */}
                 <div className="section-container founder-section">
-                    <h2 className="section-title">Meet our Founder</h2>
-                    <p style={{ marginBottom: '3rem', color: '#ccc' }}>The visionary behind TradeHub, building the future of trading education.</p>
+                    <h2 className="section-title">Meet our Founders</h2>
+                    <p style={{ marginBottom: '3rem', color: '#ccc' }}>The visionaries behind TradeHub, building the future of trading education.</p>
                     <div className="founders-grid">
                         <div className="founder-card">
                             <div className="founder-image-container">
-                                {/* Placeholder image - replace with actual asset */}
-                                <img src="https://via.placeholder.com/150" alt="Ajit Yadav" />
+                                <img src="/assets/founder-ajit.png" alt="Ajit Yadav" />
                             </div>
                             <h3 className="founder-name">Ajit Yadav</h3>
                             <p className="founder-role">Founder & CEO</p>
@@ -161,6 +160,20 @@ const HomePage = () => {
                                 <a href="https://www.linkedin.com/in/ajit-yadav89" target="_blank" rel="noreferrer" className="social-icon linkedin"><i className="bi bi-linkedin"></i></a>
                                 {/* X icon removed as requested */}
                                 <a href="https://www.instagram.com/ajit._8898" target="_blank" rel="noreferrer" className="social-icon instagram" style={{ background: '#E1306C' }}><i className="bi bi-instagram"></i></a>
+                            </div>
+                        </div>
+
+                        {/* Co-Founder Card */}
+                        <div className="founder-card">
+                            <div className="founder-image-container">
+                                <img src="/assets/founder-yasir.png" alt="Mohammad Yasir" />
+                            </div>
+                            <h3 className="founder-name">Mohammad Yasir</h3>
+                            <p className="founder-role">Co-Founder</p>
+                            <p className="founder-bio">Yasir drives the technical vision and strategy at TradeHub, ensuring a seamless and innovative learning experience for all users.</p>
+                            <div className="founder-socials">
+                                <a href="https://www.linkedin.com/in/mohammad-yasir-ansari-9b2652376?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noreferrer" className="social-icon linkedin"><i className="bi bi-linkedin"></i></a>
+                                <a href="https://www.instagram.com/yasiii_r35" target="_blank" rel="noreferrer" className="social-icon instagram" style={{ background: '#E1306C' }}><i className="bi bi-instagram"></i></a>
                             </div>
                         </div>
                     </div>
